@@ -16,6 +16,9 @@
     "idf.toolsPathWin": "C:\\Users\\james\\.espressif",
     "files.associations": {
         "metaballs.h": "c",
-        "lvgl.h": "c"
+        "lvgl.h": "c",
+        "esp-bsp.h": "c",
+        "algorithm": "cpp",
+        "*.tcc": "cpp"
     }
 }

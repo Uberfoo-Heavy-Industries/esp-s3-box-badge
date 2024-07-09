@@ -53,7 +53,6 @@ static const uint8_t MIN_RADIUS = 8;
 static const uint8_t MAX_RADIUS = 16;
 static const uint8_t PIXEL_SIZE = 1;
 
-lv_layer_t metaballs_layer;
 lv_draw_rect_dsc_t metaballs_rect_dsc;
 
 void
@@ -147,7 +146,7 @@ metaballs_render(lv_obj_t *canvas)
             }
 
             if (1 == PIXEL_SIZE) {
-                lv_canvas_set_px(canvas, x, y, color, LV_OPA_100);
+                lv_canvas_set_px(canvas, x, y, color);
             } else {
                 lv_obj_t *rect = lv_obj_create(lv_scr_act());
                 lv_obj_set_pos(rect, x, y);
