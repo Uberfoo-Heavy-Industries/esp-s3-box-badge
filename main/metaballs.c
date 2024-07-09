@@ -57,11 +57,9 @@ lv_layer_t metaballs_layer;
 lv_draw_rect_dsc_t metaballs_rect_dsc;
 
 void
-metaballs_init(lv_obj_t * canvas)
+metaballs_init(lv_obj_t *canvas)
 {
     if (PIXEL_SIZE > 1) {
-        lv_draw_rect_dsc_init(&metaballs_rect_dsc);
-        metaballs_rect_dsc.bg_opa = LV_OPA_COVER;
 
     }
     
@@ -77,7 +75,7 @@ metaballs_init(lv_obj_t * canvas)
 }
 
 void
-metaballs_animate(lv_obj_t * canvas)
+metaballs_animate(lv_obj_t *canvas)
 {
     for (int16_t i = 0; i < NUM_BALLS; i++) {
         balls[i].position.x += balls[i].velocity.x;
@@ -97,7 +95,7 @@ metaballs_animate(lv_obj_t * canvas)
 
 /* http://www.geisswerks.com/ryan/BLOBS/blobs.html */
 void
-metaballs_render(lv_obj_t * canvas)
+metaballs_render(lv_obj_t *canvas)
 {
     const lv_color_t background = lv_color_make(0,0,0);
     const lv_color_t black = lv_color_make(0,0,0);
@@ -106,10 +104,26 @@ metaballs_render(lv_obj_t * canvas)
 
     lv_color_t color;
 
+    bsp_display_lock(0);
+
+                // lv_obj_t *rect = lv_obj_create(lv_scr_act());
+                // lv_obj_set_pos(rect, 50, 50);
+                // lv_obj_set_size(rect, 50, 50);
+                
+                // // Set the style of the rectangle
+                // lv_obj_set_style_bg_color(rect, black, 0);
+                // lv_obj_set_style_bg_opa(rect, LV_OPA_COVER, 0);  // Fully opaque
+                // lv_obj_set_style_border_width(rect, 0, 0);
+                // lv_obj_set_style_radius(rect, 0, 0);
 
     // lv_canvas_init_layer(canvas, &metaballs_layer);
-    printf("frame\n");
-    bsp_display_lock(0);
+
+    //             lv_draw_rect_dsc_init(&metaballs_rect_dsc);
+    //             metaballs_rect_dsc.bg_opa = LV_OPA_COVER;
+    //             metaballs_rect_dsc.bg_color = black;
+    //             metaballs_rect_dsc.border_width = 0;
+    //             lv_area_t coords_rect = {50, 50, 60, 60};
+    //             lv_draw_rect(&metaballs_layer, &metaballs_rect_dsc, &coords_rect);
 
     for (uint16_t y = 0; y < BSP_LCD_V_RES; y += PIXEL_SIZE) {
         for (uint16_t x = 0; x < BSP_LCD_H_RES; x += PIXEL_SIZE) {
@@ -135,12 +149,18 @@ metaballs_render(lv_obj_t * canvas)
             if (1 == PIXEL_SIZE) {
                 lv_canvas_set_px(canvas, x, y, color, LV_OPA_100);
             } else {
-                lv_area_t coords_rect = {x, y, x + PIXEL_SIZE -1, y + PIXEL_SIZE - 1};
-                metaballs_rect_dsc.bg_color = color;
-                lv_draw_rect(&metaballs_layer, &metaballs_rect_dsc, &coords_rect);
+                lv_obj_t *rect = lv_obj_create(lv_scr_act());
+                lv_obj_set_pos(rect, x, y);
+                lv_obj_set_size(rect, PIXEL_SIZE, PIXEL_SIZE);
+                
+                // Set the style of the rectangle
+                lv_obj_set_style_bg_color(rect, color, 0);
+                lv_obj_set_style_bg_opa(rect, LV_OPA_COVER, 0);  // Fully opaque
+                lv_obj_set_style_border_width(rect, 0, 0);
+                lv_obj_set_style_radius(rect, 0, 0);
             }
         }
     }
-    bsp_display_unlock();
     // lv_canvas_finish_layer(canvas, &metaballs_layer);
+    bsp_display_unlock();
 }

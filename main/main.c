@@ -41,15 +41,14 @@ void app_main(void)
 
     LV_DRAW_BUF_DEFINE(draw_buf_16bpp, BSP_LCD_H_RES, BSP_LCD_V_RES, LV_COLOR_FORMAT_RGB565);
 
-    lv_obj_t * canvas = lv_canvas_create(lv_screen_active());
+    lv_obj_t *canvas = lv_canvas_create(lv_screen_active());
     lv_canvas_set_draw_buf(canvas, &draw_buf_16bpp);
     lv_obj_center(canvas);
     lv_canvas_fill_bg(canvas, lv_color_make(0, 255, 0), LV_OPA_COVER);
 
+    bsp_display_unlock();
+    
     metaballs_init(canvas);
 
     xTaskCreate(metaballs_task, "metaballs", 4096, canvas, tskIDLE_PRIORITY, NULL);
-
-    bsp_display_unlock();
-
 }
