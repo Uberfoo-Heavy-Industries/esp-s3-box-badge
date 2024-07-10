@@ -51,7 +51,7 @@ static const uint8_t MIN_VELOCITY = 3;
 static const uint8_t MAX_VELOCITY = 5;
 static const uint8_t MIN_RADIUS = 8;
 static const uint8_t MAX_RADIUS = 16;
-static const uint8_t PIXEL_SIZE = 1;
+static const uint8_t PIXEL_SIZE = 2;
 
 lv_draw_rect_dsc_t metaballs_rect_dsc;
 
@@ -142,15 +142,10 @@ Metaballs::renderFrame()
             if (1 == PIXEL_SIZE) {
                 lv_canvas_set_px(canvas, x, y, color);
             } else {
-                lv_obj_t *rect = lv_obj_create(lv_scr_act());
-                lv_obj_set_pos(rect, x, y);
-                lv_obj_set_size(rect, PIXEL_SIZE, PIXEL_SIZE);
-                
-                // Set the style of the rectangle
-                lv_obj_set_style_bg_color(rect, color, 0);
-                lv_obj_set_style_bg_opa(rect, LV_OPA_COVER, 0);  // Fully opaque
-                lv_obj_set_style_border_width(rect, 0, 0);
-                lv_obj_set_style_radius(rect, 0, 0);
+                lv_draw_rect_dsc_t rect_dsc;
+                lv_draw_rect_dsc_init(&rect_dsc);
+                rect_dsc.bg_color = color;
+                lv_canvas_draw_rect(canvas, x, y, PIXEL_SIZE, PIXEL_SIZE, &rect_dsc);
             }
         }
     }
