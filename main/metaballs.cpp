@@ -61,8 +61,8 @@ Metaballs::Metaballs(lv_obj_t *canvas, uint16_t width, uint16_t height) : Demo(c
     for (int16_t i = 0; i < NUM_BALLS; i++) {
         balls[i].radius = (rand() % MAX_RADIUS) + MIN_RADIUS;
         balls[i].color = 0xffff;
-        balls[i].position.x = rand() % BSP_LCD_H_RES;
-        balls[i].position.y = rand() % BSP_LCD_V_RES;
+        balls[i].position.x = rand() % width;
+        balls[i].position.y = rand() % height;
         balls[i].velocity.x = (rand() % MAX_VELOCITY) + MIN_VELOCITY;
         balls[i].velocity.y = (rand() % MAX_VELOCITY) + MIN_VELOCITY;
     }
@@ -76,12 +76,12 @@ Metaballs::renderFrame()
         balls[i].position.y += balls[i].velocity.y;
 
         /* Touch left or right edge, change direction. */
-        if ((balls[i].position.x < 0) | (balls[i].position.x > BSP_LCD_H_RES)) {
+        if ((balls[i].position.x < 0) | (balls[i].position.x > width)) {
             balls[i].velocity.x = balls[i].velocity.x * -1;
         }
 
         /* Touch top or bottom edge, change direction. */
-        if ((balls[i].position.y < 0) | (balls[i].position.y > BSP_LCD_V_RES)) {
+        if ((balls[i].position.y < 0) | (balls[i].position.y > height)) {
             balls[i].velocity.y = balls[i].velocity.y * -1;
         }
     }
@@ -90,8 +90,8 @@ Metaballs::renderFrame()
 
     bsp_display_lock(0);
 
-    for (uint16_t y = 0; y < BSP_LCD_V_RES; y += PIXEL_SIZE) {
-        for (uint16_t x = 0; x < BSP_LCD_H_RES; x += PIXEL_SIZE) {
+    for (uint16_t y = 0; y < height; y += PIXEL_SIZE) {
+        for (uint16_t x = 0; x < width; x += PIXEL_SIZE) {
             float sum = 0;
             for (uint8_t i = 0; i < NUM_BALLS; i++) {
                 const float dx = x - balls[i].position.x;

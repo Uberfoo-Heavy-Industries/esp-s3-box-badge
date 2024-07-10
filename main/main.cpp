@@ -23,7 +23,7 @@ void demo_task(void *obj) {
 
     demo_task_params *params = (demo_task_params *)obj;
     ESP_LOGD("demo_task", "dimensions: (%d, %d)", params->width, params->height);
-    Demo *demo = new Fire(params->canvas, params->width, params->height);
+    Demo *demo = new Metaballs(params->canvas, params->width, params->height);
     while (true) {
         bsp_display_lock(0);
         demo->renderFrame();
