@@ -55,9 +55,13 @@ static const uint8_t PIXEL_SIZE = 1;
 
 lv_draw_rect_dsc_t metaballs_rect_dsc;
 
-void
-metaballs_init(lv_obj_t *canvas)
+Metaballs::Metaballs(lv_obj_t *canvas) : Demo(canvas)
 {
+    background = lv_color_make(0,0,0);
+    black = lv_color_make(0,0,0);
+    white = lv_color_make(255,255,255);
+    green = lv_color_make(0,255,0);
+
     if (PIXEL_SIZE > 1) {
 
     }
@@ -74,7 +78,7 @@ metaballs_init(lv_obj_t *canvas)
 }
 
 void
-metaballs_animate(lv_obj_t *canvas)
+Metaballs::renderFrame() 
 {
     for (int16_t i = 0; i < NUM_BALLS; i++) {
         balls[i].position.x += balls[i].velocity.x;
@@ -90,16 +94,6 @@ metaballs_animate(lv_obj_t *canvas)
             balls[i].velocity.y = balls[i].velocity.y * -1;
         }
     }
-}
-
-/* http://www.geisswerks.com/ryan/BLOBS/blobs.html */
-void
-metaballs_render(lv_obj_t *canvas)
-{
-    const lv_color_t background = lv_color_make(0,0,0);
-    const lv_color_t black = lv_color_make(0,0,0);
-    const lv_color_t white = lv_color_make(255,255,255);
-    const lv_color_t green = lv_color_make(0,255,0);
 
     lv_color_t color;
 
