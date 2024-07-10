@@ -31,16 +31,13 @@ SPDX-License-Identifier: MIT-0
 class Metaballs : public Demo {
     private:
 
-    lv_color_t background;
-    lv_color_t black;
-    lv_color_t white;
-    lv_color_t green;
+    const lv_color_t background = lv_color_make(0,0,0);
+    const lv_color_t black = lv_color_make(0,0,0);
+    const lv_color_t white = lv_color_make(255,255,255);
+    const lv_color_t green = lv_color_make(0,255,0);
 
     public: 
     
-    Metaballs(lv_obj_t * canvas);
+    Metaballs(lv_obj_t * canvas, uint16_t width, uint16_t height);
     void renderFrame() override; 
 };
-void metaballs_init(lv_obj_t * canvas);
-void metaballs_animate(lv_obj_t * canvas);
-void metaballs_render(lv_obj_t * canvas);

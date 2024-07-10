@@ -46,7 +46,7 @@ struct ball {
 
 struct ball balls[16];
 
-static const uint8_t NUM_BALLS = 2;
+static const uint8_t NUM_BALLS = 3;
 static const uint8_t MIN_VELOCITY = 3;
 static const uint8_t MAX_VELOCITY = 5;
 static const uint8_t MIN_RADIUS = 8;
@@ -55,17 +55,8 @@ static const uint8_t PIXEL_SIZE = 2;
 
 lv_draw_rect_dsc_t metaballs_rect_dsc;
 
-Metaballs::Metaballs(lv_obj_t *canvas) : Demo(canvas)
+Metaballs::Metaballs(lv_obj_t *canvas, uint16_t width, uint16_t height) : Demo(canvas, width, height)
 {
-    background = lv_color_make(0,0,0);
-    black = lv_color_make(0,0,0);
-    white = lv_color_make(255,255,255);
-    green = lv_color_make(0,255,0);
-
-    if (PIXEL_SIZE > 1) {
-
-    }
-    
     /* Set up imaginary balls inside screen coordinates. */
     for (int16_t i = 0; i < NUM_BALLS; i++) {
         balls[i].radius = (rand() % MAX_RADIUS) + MIN_RADIUS;
@@ -99,25 +90,6 @@ Metaballs::renderFrame()
 
     bsp_display_lock(0);
 
-                // lv_obj_t *rect = lv_obj_create(lv_scr_act());
-                // lv_obj_set_pos(rect, 50, 50);
-                // lv_obj_set_size(rect, 50, 50);
-                
-                // // Set the style of the rectangle
-                // lv_obj_set_style_bg_color(rect, black, 0);
-                // lv_obj_set_style_bg_opa(rect, LV_OPA_COVER, 0);  // Fully opaque
-                // lv_obj_set_style_border_width(rect, 0, 0);
-                // lv_obj_set_style_radius(rect, 0, 0);
-
-    // lv_canvas_init_layer(canvas, &metaballs_layer);
-
-    //             lv_draw_rect_dsc_init(&metaballs_rect_dsc);
-    //             metaballs_rect_dsc.bg_opa = LV_OPA_COVER;
-    //             metaballs_rect_dsc.bg_color = black;
-    //             metaballs_rect_dsc.border_width = 0;
-    //             lv_area_t coords_rect = {50, 50, 60, 60};
-    //             lv_draw_rect(&metaballs_layer, &metaballs_rect_dsc, &coords_rect);
-
     for (uint16_t y = 0; y < BSP_LCD_V_RES; y += PIXEL_SIZE) {
         for (uint16_t x = 0; x < BSP_LCD_H_RES; x += PIXEL_SIZE) {
             float sum = 0;
@@ -149,6 +121,5 @@ Metaballs::renderFrame()
             }
         }
     }
-    // lv_canvas_finish_layer(canvas, &metaballs_layer);
     bsp_display_unlock();
 }

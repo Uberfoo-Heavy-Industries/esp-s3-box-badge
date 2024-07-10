@@ -13,41 +13,27 @@
 
 #define DISP_BUF_SIZE BSP_LCD_H_RES * BSP_LCD_V_RES
 
-static char *TAG = "app_main";
+typedef struct demo_task_params {
+    lv_obj_t *canvas;
+    uint16_t width;
+    uint16_t height;
+} demo_task_params;
 
-void metaballs_task(void *param) {
-    // lv_color_t pallette[256];
-    // uint8_t *fire = (uint8_t *)heap_caps_malloc(BSP_LCD_H_RES * BSP_LCD_V_RES * 2, MALLOC_CAP_DEFAULT);
-    // memset(fire, 0, BSP_LCD_H_RES * BSP_LCD_V_RES * 2);
+void demo_task(void *obj) {
 
-    // if (fire == NULL) {
-    //     ESP_LOGE("Memory", "Failed to allocate memory");
-    //     return;
-    // }
-
-    // while (true) {
-    //     metaballs_animate((lv_obj_t*)param);
-    //     metaballs_render((lv_obj_t*)param);
-    // }
-
-    Demo *demo = new Metaballs((lv_obj_t *)param);
+    demo_task_params *params = (demo_task_params *)obj;
+    ESP_LOGD("demo_task", "dimensions: (%d, %d)", params->width, params->height);
+    Demo *demo = new Fire(params->canvas, params->width, params->height);
     while (true) {
+        bsp_display_lock(0);
         demo->renderFrame();
+        bsp_display_unlock();
     }
-    // Fire *fire_demo = new Fire((lv_obj_t *)param);
-    // fire_demo->init();
-    // printf("fire init\n");
-    // while (true) {
-    //     bsp_display_lock(0);
-    //     printf("fire frame\n");
-    //     fire_demo->playFire();
-    //     bsp_display_unlock();
-    // }
 }
 
 extern "C" int app_main()
 {
-    printf("startup...\n");
+    ESP_LOGD("main", "startup...");
 
       /* Initialize I2C (for touch and audio) */
     bsp_i2c_init();
@@ -59,6 +45,7 @@ extern "C" int app_main()
         .double_buffer = 0,
         .flags = {
             .buff_dma = true,
+            .buff_spiram = 0
         }
     };
     bsp_display_start_with_config(&cfg);
@@ -71,25 +58,65 @@ extern "C" int app_main()
 
     bsp_display_lock(0);
 
-    lv_color_t *buf = (lv_color_t *)heap_caps_malloc(LV_CANVAS_BUF_SIZE_TRUE_COLOR(BSP_LCD_H_RES, BSP_LCD_V_RES), MALLOC_CAP_DEFAULT);
+    lv_color_t *buf = (lv_color_t *)heap_caps_malloc(LV_CANVAS_BUF_SIZE_TRUE_COLOR(BSP_LCD_H_RES, BSP_LCD_V_RES / 2), MALLOC_CAP_DEFAULT);
 
     lv_obj_t *canvas = lv_canvas_create(lv_scr_act());
-    lv_canvas_set_buffer(canvas, buf, BSP_LCD_H_RES, BSP_LCD_V_RES, LV_IMG_CF_TRUE_COLOR);
-    lv_obj_center(canvas);
+    lv_canvas_set_buffer(canvas, buf, BSP_LCD_H_RES, BSP_LCD_V_RES / 2, LV_IMG_CF_TRUE_COLOR);
+    lv_obj_align_to(canvas, lv_scr_act(), LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_canvas_fill_bg(canvas, lv_color_make(0, 255, 0), LV_OPA_COVER);
 
+    ESP_LOGI("main", "\tDescription\tInternal\tSPIRAM");
+    ESP_LOGI("main", "Current Free Memory\t%d\t\t%d",
+                heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+                heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+    ESP_LOGI("main", "Min. Ever Free Size\t%d\t\t%d",
+                heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL),
+                heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM));
+
+    demo_task_params *params = (demo_task_params *)heap_caps_malloc(sizeof(demo_task_params), MALLOC_CAP_INTERNAL);
+    *params = {
+        .canvas = canvas,
+        .width = BSP_LCD_H_RES,
+        .height = BSP_LCD_V_RES / 2
+    };
+
+    static lv_style_t top_pane_style;
+    lv_style_init(&top_pane_style);
+    lv_style_set_bg_color(&top_pane_style, lv_color_black());
+    lv_style_set_border_width(&top_pane_style, 0);
+    lv_style_set_radius(&top_pane_style, 0);
+
+    lv_obj_t *top_pane = lv_obj_create(lv_scr_act());
+    lv_obj_add_style(top_pane, &top_pane_style, LV_PART_MAIN);
+    lv_obj_set_scrollbar_mode(top_pane, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_size(top_pane, BSP_LCD_H_RES, BSP_LCD_V_RES / 2);
+    lv_obj_align_to(top_pane, lv_scr_act(), LV_ALIGN_TOP_MID, 0, 0);
     
-        ESP_LOGI(TAG, "\tDescription\tInternal\tSPIRAM");
-        ESP_LOGI(TAG, "Current Free Memory\t%d\t\t%d",
-                 heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
-                 heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-        ESP_LOGI(TAG, "Min. Ever Free Size\t%d\t\t%d",
-                 heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL),
-                 heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM));
+    static lv_style_t label_style;
+    lv_style_init(&label_style);
+    lv_style_set_text_color(&label_style, lv_color_white());
+    lv_style_set_text_font(&label_style, &lv_font_montserrat_48);
 
-    //metaballs_init(canvas);
+    lv_obj_t *label = lv_label_create(top_pane);
+    lv_obj_add_style(label, &label_style, LV_PART_MAIN);
+    lv_label_set_text(label, "LiPo");
+    lv_obj_align_to(label, top_pane, LV_ALIGN_CENTER, 0, 0);
 
-    xTaskCreate(metaballs_task, "metaballs", 4096, canvas, tskIDLE_PRIORITY, NULL);
+    static lv_style_t label2_style;
+    lv_style_init(&label2_style);
+    lv_style_set_text_color(&label2_style, lv_color_black());
+    lv_style_set_text_font(&label2_style, &lv_font_montserrat_28);
+
+    lv_obj_t *label2 = lv_label_create(canvas);
+    lv_obj_add_style(label2, &label2_style, LV_PART_MAIN);
+    lv_obj_set_width(label2, BSP_LCD_H_RES);
+    lv_label_set_long_mode(label2, LV_LABEL_LONG_SCROLL_CIRCULAR);     /*Circular scroll*/
+    lv_label_set_text(label2, "UBERFOO HEAVY INDUSTRIES");
+    lv_obj_align_to(label2, canvas, LV_ALIGN_TOP_MID, 0, 40);
+
+    bsp_display_unlock();
+    
+    xTaskCreate(demo_task, "metaballs", 4096, params, tskIDLE_PRIORITY + 1, NULL);
 
     // lv_obj_t *img = lv_gif_create(lv_scr_act());
     
@@ -99,7 +126,6 @@ extern "C" int app_main()
     /* Align object */
     // lv_obj_center(img);
 
-    bsp_display_unlock();
 
     return 0;
 }

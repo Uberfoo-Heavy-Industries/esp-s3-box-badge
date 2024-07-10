@@ -31,9 +31,10 @@ SPDX-License-Identifier: MIT-0
 
 #include <stdint.h>
 #include "bsp/esp-bsp.h"
+#include "demo.h"
 
 
-class Fire {
+class Fire : public Demo {
     private:
     
     lv_obj_t *canvas;
@@ -42,14 +43,14 @@ class Fire {
 
     public: 
 
-    Fire(lv_obj_t *canvas);
-
-    void init();
-    void playFire();
+    Fire(lv_obj_t *canvas, uint16_t width, uint16_t height);
+    void renderFrame();
 };
 
 typedef struct fire_thrd_params {
     int start;
+    int width;
+    int height;
     uint8_t *fire;
 } fire_thrd_params;
 
