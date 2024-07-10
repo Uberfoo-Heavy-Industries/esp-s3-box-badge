@@ -2,7 +2,7 @@
 
 MIT No Attribution
 
-Copyright (c) 2023 James Bryant
+Copyright (c) 2024 James Bryant
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -41,46 +41,22 @@ Fire Effect based on https://lodev.org/cgtutor/fire.html
 #include "freertos/task.h"
 #include "esp_pthread.h"
 #include "fire.h"
+#include "demo.h"
+#include "util.h"
 
-void *run(void *arg)
-{
-    static const int16_t h = BSP_LCD_V_RES;
-    static const int16_t w = BSP_LCD_H_RES;
-
-    fire_thrd_params *params = (fire_thrd_params *)arg;
-    int rows = BSP_LCD_V_RES /2;
-    int end = params->start + rows;
-    uint8_t *fire = params->fire;
-
-    //do the fire calculations for every pixel, from top to bottom
-    for(int y = params->start; y < end - 1; y++) {
-        for(int x = 0; x < w; x++)
-        {
-            fire[(y * w) + x] =
-                ((fire[(((y + 1) % h) * w) + ((x - 1 + w) % w)]
-                + fire[(((y + 1) % h) * w) + (x % w)]
-                + fire[(((y + 1) % h) * w) + ((x + 1) % w)]
-                + fire[(((y + 2) % h) * w) + (x % w)])
-                * 32) / 129;
-        }
-    }
-    return NULL;
-}
-
-Fire::Fire(lv_obj_t *canvas)
+Fire::Fire(lv_obj_t *canvas, uint16_t width, uint16_t height) : Demo(canvas, width, height)
 {
     this->canvas = canvas;
-    fire = (uint8_t *)heap_caps_malloc(BSP_LCD_H_RES * BSP_LCD_V_RES * 2, MALLOC_CAP_DEFAULT);
+    ESP_LOGD("fire", "dimensions: (%d, %d)", width, height);
+    fire = (uint8_t *)heap_caps_malloc(width * height * 2, MALLOC_CAP_DEFAULT);
 
     if (fire == NULL) {
-        ESP_LOGE("Memory", "Failed to allocate memory");
+        ESP_LOGE("Fire", "Failed to allocate memory for fire buffer");
         return;
     }
 
-    memset(fire, 0, BSP_LCD_H_RES * BSP_LCD_V_RES * 2);
-}
+    memset(fire, 0, width * height * 2);
 
-void Fire::init() {
     //generate the palette
     for(int x = 0; x < 256; x++)
     {
@@ -88,54 +64,37 @@ void Fire::init() {
         //Hue goes from 0 to 85: red to yellow
         //Saturation is always the maximum: 255
         //Lightness is 0..255 for x=0..128, and 255 for x=128..255
-        lv_color_t color = lv_color_hsv_to_rgb(x / 3, 255, std::min(255, x * 2));
+        lv_color_t color = hsl_to_rgb(x / 3, 255, std::min(255, x * 2));
         palette[x] = color;
     }
 }
 
-void Fire::playFire() {
-    int16_t h = BSP_LCD_V_RES;
-    int16_t w = BSP_LCD_H_RES;
+void Fire::renderFrame() {
     
     //randomize the bottom row of the fire buffer
-    for(int x = 0; x < w; x++) fire[((h - 1) * w) + x] = abs(32768 + rand()) % 256;
-    printf("done.\n");
+    for(int x = 0; x < width; x++) fire[((height - 1) * width) + x] = abs(32768 + rand()) % 256;
+    ESP_LOGD("fire", "randomize row done.");
     
-    pthread_attr_t attr;
-    pthread_t thread1, thread2;
-    esp_pthread_cfg_t esp_pthread_cfg;
-    int res;
-
-    fire_thrd_params params1 = {
-        .start = 0,
-        .fire = fire
-    };
-
-    // Create a pthread with the default parameters
-    res = pthread_create(&thread1, NULL, run, &params1);
-    assert(res == 0);
-    printf("Created thread 0x%" PRIx32 "\n", thread1);
-
-    fire_thrd_params params2 = {
-        .start = h / 2,
-        .fire = fire
-    };
-    
-    // Create a pthread with the default parameters
-    res = pthread_create(&thread2, NULL, run, &params2);
-    assert(res == 0);
-    printf("Created thread 0x%" PRIx32 "\n", thread2);
-
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
-
-    //set the drawing buffer to the fire buffer, using the palette colors
-    for(int y = 0; y < h; y++) {
-        for(int x = 0; x < w; x++)
+    //do the fire calculations for every pixel, from top to bottom
+    for(int y = 0; y < height - 1; y++) {
+        for(int x = 0; x < width; x++)
         {
-            lv_canvas_set_px(canvas, x, y, palette[*(fire + (y * w) + x)]);
+            fire[(y * width) + x] =
+                ((fire[(((y + 1) % height) * width) + ((x - 1 + width) % width)]
+                + fire[(((y + 1) % height) * width) + (x % width)]
+                + fire[(((y + 1) % height) * width) + ((x + 1) % width)]
+                + fire[(((y + 2) % height) * width) + (x % width)])
+                * 32) / 129;
         }
     }
-    printf("done.\n");
+
+    //set the drawing buffer to the fire buffer, using the palette colors
+    for(int y = 0; y < height; y++) {
+        for(int x = 0; x < width; x++)
+        {
+            lv_canvas_set_px(canvas, x, y, palette[*(fire + (y * width) + x)]);
+        }
+    }
+    ESP_LOGD("fire", "render frame done.\n");
 }
 

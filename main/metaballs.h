@@ -25,16 +25,19 @@ SPDX-License-Identifier: MIT-0
 
 */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "lvgl.h"
+#include "demo.h"
 
-void metaballs_init(lv_obj_t * canvas);
-void metaballs_animate(lv_obj_t * canvas);
-void metaballs_render(lv_obj_t * canvas);
+class Metaballs : public Demo {
+    private:
 
-#ifdef __cplusplus
-}
-#endif
+    const lv_color_t background = lv_color_make(0,0,0);
+    const lv_color_t black = lv_color_make(0,0,0);
+    const lv_color_t white = lv_color_make(255,255,255);
+    const lv_color_t green = lv_color_make(0,255,0);
+
+    public: 
+    
+    Metaballs(lv_obj_t * canvas, uint16_t width, uint16_t height);
+    void renderFrame() override; 
+};

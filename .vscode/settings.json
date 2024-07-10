@@ -19,6 +19,8 @@
         "lvgl.h": "c",
         "esp-bsp.h": "c",
         "algorithm": "cpp",
-        "*.tcc": "cpp"
-    }
+        "*.tcc": "cpp",
+        "cstdint": "cpp"
+    },
+    "idf.flashType": "UART"
 }
