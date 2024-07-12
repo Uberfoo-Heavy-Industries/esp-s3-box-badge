@@ -6,6 +6,8 @@
 #include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "lvgl.h"
+#include "touch_element/touch_button.h"
+#include "iot_button.h"
 
 #include "main.h"
 #include "metaballs.h"
@@ -31,6 +33,10 @@ void demo_task(void *obj) {
     }
 }
 
+void button_cb(void *button_handle, void *usr_data) {
+    ESP_LOGI("button", "Button event.");
+}
+
 extern "C" int app_main()
 {
     ESP_LOGD("main", "startup...");
@@ -52,6 +58,11 @@ extern "C" int app_main()
 
     /* Set display brightness to 100% */
     bsp_display_backlight_on();
+
+    button_handle_t buttons[BSP_BUTTON_NUM];
+
+    bsp_iot_button_create(buttons, NULL, BSP_BUTTON_NUM);
+    iot_button_register_cb(buttons[BSP_BUTTON_MAIN], BUTTON_PRESS_DOWN, button_cb, NULL); 
 
      /* Mount SPIFFS */
     bsp_spiffs_mount();
