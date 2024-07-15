@@ -36,15 +36,17 @@ DemoSettingsPage::DemoSettingsPage(lv_obj_t *parent) : Page(parent) {
     lv_checkbox_set_text(checkbox3, "Option 3");
 
     // Create a save button
-    lv_obj_t *save_btn = lv_btn_create(page);
-    lv_obj_align(save_btn, LV_ALIGN_BOTTOM_MID, 0, -60);
+    save_btn = lv_btn_create(page);
+    lv_obj_set_size(save_btn, 100, 30);
+    lv_obj_align(save_btn, LV_ALIGN_BOTTOM_LEFT, 10, 0);
     lv_obj_t *save_btn_label = lv_label_create(save_btn);
     lv_label_set_text(save_btn_label, "Save");
     lv_obj_add_event_cb(save_btn, save_btn_event_cb, LV_EVENT_CLICKED, this);
 
     // Create a back button to return to the menu page
-    lv_obj_t *back_btn = lv_btn_create(page);
-    lv_obj_align(back_btn, LV_ALIGN_BOTTOM_MID, 0, -10);
+    back_btn = lv_btn_create(page);
+    lv_obj_set_size(back_btn, 50, 30);
+    lv_obj_align(back_btn, LV_ALIGN_BOTTOM_RIGHT, -10, 0);
     lv_obj_t *back_btn_label = lv_label_create(back_btn);
     lv_label_set_text(back_btn_label, "Back");
     lv_obj_add_event_cb(back_btn, back_btn_event_cb, LV_EVENT_CLICKED, this);

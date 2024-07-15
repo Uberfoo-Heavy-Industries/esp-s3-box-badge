@@ -19,6 +19,8 @@ private:
     lv_obj_t *checkbox3;
     lv_obj_t *checkbox_container;
     lv_obj_t *enable_switch;
+    lv_obj_t *save_btn;
+    lv_obj_t *back_btn;
 
     static DemoSettingsPage *instance;
 };

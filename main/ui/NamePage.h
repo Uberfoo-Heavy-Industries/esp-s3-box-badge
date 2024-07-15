@@ -15,6 +15,8 @@ private:
 
     lv_obj_t *text_area;
     lv_obj_t *keyboard;
+    lv_obj_t *save_btn;
+    lv_obj_t *back_btn;
 
     static NamePage *instance;
 };
