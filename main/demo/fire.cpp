@@ -98,3 +98,6 @@ void Fire::renderFrame() {
     ESP_LOGD("fire", "render frame done.\n");
 }
 
+Fire::~Fire() {
+    free(fire);
+}

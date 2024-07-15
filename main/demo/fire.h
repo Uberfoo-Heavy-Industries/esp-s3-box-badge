@@ -45,6 +45,8 @@ class Fire : public Demo {
 
     Fire(lv_obj_t *canvas, uint16_t width, uint16_t height);
     void renderFrame();
+
+    ~Fire();
 };
 
 typedef struct fire_thrd_params {
