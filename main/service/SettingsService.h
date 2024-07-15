@@ -13,7 +13,7 @@ public:
     static SettingsService* getInstance();
 
     void setName(const char *name);
-    char *getName();
+    const char *getName();
 
 
 private:

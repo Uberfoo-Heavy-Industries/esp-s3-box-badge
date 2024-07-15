@@ -15,14 +15,14 @@ MenuPage::MenuPage(lv_obj_t *parent) : Page(parent) {
     lv_obj_t *btn1 = lv_btn_create(page);
     lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -30);
     lv_obj_t *btn1_label = lv_label_create(btn1);
-    lv_label_set_text(btn1_label, "Options 1");
+    lv_label_set_text(btn1_label, "Name");
     uint8_t* btn1_option = new uint8_t(1);
     lv_obj_add_event_cb(btn1, options_btn_event_cb, LV_EVENT_CLICKED, btn1_option);
 
     lv_obj_t *btn2 = lv_btn_create(page);
     lv_obj_align(btn2, LV_ALIGN_CENTER, 0, 30);
     lv_obj_t *btn2_label = lv_label_create(btn2);
-    lv_label_set_text(btn2_label, "Options 2");
+    lv_label_set_text(btn2_label, "Demo Options");
     uint8_t* btn2_option = new uint8_t(2);
     lv_obj_add_event_cb(btn2, options_btn_event_cb, LV_EVENT_CLICKED, btn2_option);
 

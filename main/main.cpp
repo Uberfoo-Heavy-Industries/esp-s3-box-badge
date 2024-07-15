@@ -92,13 +92,13 @@ extern "C" int app_main()
     // lv_obj_align_to(canvas, lv_scr_act(), LV_ALIGN_BOTTOM_MID, 0, 0);
     // lv_canvas_fill_bg(canvas, lv_color_make(0, 255, 0), LV_OPA_COVER);
 
-    // ESP_LOGI("main", "\tDescription\tInternal\tSPIRAM");
-    // ESP_LOGI("main", "Current Free Memory\t%d\t\t%d",
-    //             heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
-    //             heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-    // ESP_LOGI("main", "Min. Ever Free Size\t%d\t\t%d",
-    //             heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL),
-    //             heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM));
+    ESP_LOGI("main", "\tDescription\tInternal\tSPIRAM");
+    ESP_LOGI("main", "Current Free Memory\t%d\t\t%d",
+                heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+                heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+    ESP_LOGI("main", "Min. Ever Free Size\t%d\t\t%d",
+                heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL),
+                heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM));
 
     // demo_task_params *params = (demo_task_params *)heap_caps_malloc(sizeof(demo_task_params), MALLOC_CAP_INTERNAL);
     // *params = {

@@ -45,7 +45,7 @@ void SettingsService::setName(const char *name) {
 
 }
 
-char *SettingsService::getName() {
+const char *SettingsService::getName() {
         // Read value from NVS
     esp_err_t ret = nvs_open("storage", NVS_READONLY, &handle);
     if (ret != ESP_OK) {
