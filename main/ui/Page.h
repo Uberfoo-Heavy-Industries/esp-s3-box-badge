@@ -9,7 +9,8 @@ public:
     virtual ~Page() = default;
     virtual void show();
     virtual void hide();
-
+    bool is_active();
+    
 protected:
     lv_obj_t *page;
 };

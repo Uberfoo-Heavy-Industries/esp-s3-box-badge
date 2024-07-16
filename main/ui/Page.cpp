@@ -14,3 +14,7 @@ void Page::show() {
 void Page::hide() {
     lv_obj_add_flag(page, LV_OBJ_FLAG_HIDDEN);
 }
+
+bool Page::is_active() {
+    return !lv_obj_has_flag(page, LV_OBJ_FLAG_HIDDEN);
+}
