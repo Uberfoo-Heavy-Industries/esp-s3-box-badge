@@ -15,7 +15,8 @@
                     "${config:idf.espIdfPathWin}/components",
                     "${workspaceFolder}/main",
                     "${workspaceFolder}/main/demo",
-                    "${workspaceFolder}/main/ui"
+                    "${workspaceFolder}/main/ui",
+                    "${workspaceFolder}/main/service"
                 ],
                 "limitSymbolsToIncludedHeaders": true
             }
