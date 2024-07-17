@@ -5,6 +5,7 @@
 #include "MenuPage.h"
 #include "SettingsService.h"
 #include "metaballs.h"
+#include "fire.h"
 
 // Initialize the static member
 MainPage* MainPage::instance = nullptr;
@@ -29,7 +30,7 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     lv_style_set_border_width(&top_pane_style, 0);
     lv_style_set_radius(&top_pane_style, 0);
 
-    lv_obj_t *top_pane = lv_obj_create(parent);
+    top_pane = lv_obj_create(parent);
     lv_obj_add_style(top_pane, &top_pane_style, LV_PART_MAIN);
     lv_obj_set_scrollbar_mode(top_pane, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_size(top_pane, BSP_LCD_H_RES, BSP_LCD_V_RES / 2);
@@ -40,7 +41,7 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     lv_style_set_text_color(&label_style, lv_color_white());
     lv_style_set_text_font(&label_style, &lv_font_montserrat_48);
 
-    lv_obj_t *label = lv_label_create(top_pane);
+    label = lv_label_create(top_pane);
     lv_obj_add_style(label, &label_style, LV_PART_MAIN);
     lv_label_set_text(label, SettingsService::getInstance()->getName());
     lv_obj_align_to(label, top_pane, LV_ALIGN_CENTER, 0, 0);
@@ -72,6 +73,11 @@ void MainPage::show() {
     } else {
         vTaskResume(task_handle);
     }
+
+    // Update text
+    lv_label_set_text(label, SettingsService::getInstance()->getName());
+    lv_obj_align_to(label, top_pane, LV_ALIGN_CENTER, 0, 0);
+
     Page::show();
 }
 
@@ -93,7 +99,7 @@ void MainPage::demo_task(void *obj) {
 
     demo_task_params *params = (demo_task_params *)obj;
     ESP_LOGD("demo_task", "dimensions: (%d, %d)", params->width, params->height);
-    Demo *demo = new Metaballs(params->canvas, params->width, params->height);
+    Demo *demo = new Fire(params->canvas, params->width, params->height);
     while (true) {
         bsp_display_lock(0);
         demo->renderFrame();

@@ -27,7 +27,9 @@ private:
     TaskHandle_t task_handle = nullptr;
     lv_color_t *buf;
     lv_obj_t *canvas;
-    
+    lv_obj_t *top_pane;
+    lv_obj_t *label;
+
     static MainPage *instance;
 };
 
