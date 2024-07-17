@@ -19,7 +19,7 @@
 
 void button_cb(void *button_handle, void *usr_data) {
     bsp_display_lock(0);
-    ESP_LOGI("button", "Button event.");
+    ESP_LOGD("button", "Button event.");
     if (MainPage::getInstance()->is_active()) {
         MainPage::getInstance()->hide();
     }
