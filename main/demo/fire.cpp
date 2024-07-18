@@ -64,7 +64,7 @@ Fire::Fire(lv_obj_t *canvas, uint16_t width, uint16_t height) : Demo(canvas, wid
         //Hue goes from 0 to 85: red to yellow
         //Saturation is always the maximum: 255
         //Lightness is 0..255 for x=0..128, and 255 for x=128..255
-        lv_color_t color = hsl_to_rgb(x / 3, 255, std::min(255, x * 2));
+        lv_color_t color = hsl_to_rgb(x / 3, 255, x < 20 ? 0 : std::max(std::min(255, (x * 2) - 20), 0));
         palette[x] = color;
     }
 }
