@@ -17,6 +17,12 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 1.2.0
+  espressif/esp-now:
+    component_hash: 5ad630168194ad0134b28194852dda1616a1231680ef477cc6e0fc5eb5fc6233
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 2.5.1
   espressif/esp_codec_dev:
     component_hash: 014948481bda426cd46714f297fe1891711246c62bea288863a8cc8cf13ef1f0
     source:
@@ -70,6 +76,6 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 8.4.0
-manifest_hash: 31196f2aa5eb0ae62e9f4a3de0805863240bfd33a8cf9d276154b7f7ad15b68c
+manifest_hash: 18770274ce58927fd911f9636afd5775e8be3f36ac242c1ba3d791fb6a60c77a
 target: esp32s3
 version: 1.0.0

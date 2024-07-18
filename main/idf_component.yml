@@ -3,6 +3,8 @@ dependencies:
   espressif/esp_lvgl_port: "^2.2.2"
   espressif/esp-box-3: "^1.2.0"
   lvgl/lvgl: "8.4.0"
+  esp-now:
+    version: "2.*"
   ## Required IDF version
   idf:
     version: ">=5.2"

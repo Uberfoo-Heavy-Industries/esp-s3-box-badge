@@ -16,6 +16,7 @@
 #include "MenuPage.h"
 #include "NamePage.h"
 #include "DemoSettingsPage.h"
+#include "ESPNowService.h"
 
 void button_cb(void *button_handle, void *usr_data) {
     bsp_display_lock(0);
@@ -72,6 +73,8 @@ extern "C" int app_main()
     MainPage::getInstance()->show();
 
     bsp_display_unlock();
+    
+    ESPNowService::getInstance()->sendMessage("new badge start");
 
     ESP_LOGI("main", "\tDescription\tInternal\tSPIRAM");
     ESP_LOGI("main", "Current Free Memory\t%d\t\t%d",
