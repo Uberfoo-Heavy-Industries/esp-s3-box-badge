@@ -33,7 +33,7 @@ extern "C" int app_main()
 {
     ESP_LOGD("main", "startup...");
 
-      /* Initialize I2C (for touch and audio) */
+    /* Initialize I2C (for touch and audio) */
     bsp_i2c_init();
 
     /* Initialize display and LVGL */
@@ -76,7 +76,7 @@ extern "C" int app_main()
 
     bsp_display_unlock();
     
-    ESPNowService::getInstance()->sendMessage("new badge start");
+    ESPNowService::getInstance();
 
     ESP_LOGI("main", "\tDescription\tInternal\tSPIRAM");
     ESP_LOGI("main", "Current Free Memory\t%d\t\t%d",

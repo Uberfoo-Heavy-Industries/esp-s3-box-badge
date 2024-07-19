@@ -19,15 +19,17 @@ private:
     wifi_init_config_t cfg;
     static ESPNowService *instance;
 
+    static esp_err_t messageCallback(uint8_t *src_addr, void *data,
+        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl);
+    static void sendTask(void *param);
+    
+
 public:
     ESPNowService();
     ~ESPNowService();
 
     esp_err_t sendMessage(const char *message);
 
-    static esp_err_t messageCallback(uint8_t *src_addr, void *data,
-        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl);
-    
     static ESPNowService *getInstance();
 };
 

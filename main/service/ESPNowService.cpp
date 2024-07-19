@@ -51,11 +51,28 @@ esp_err_t ESPNowService::messageCallback(uint8_t *src_addr, void *data,
 }
 
 esp_err_t ESPNowService::sendMessage(const char *message) {
-    espnow_frame_head_t frame_head = {
+    xTaskCreate(
+        sendTask,    // Function that should be called
+        "send message",  // Name of the task (for debugging)
+        1000,            // Stack size (bytes)
+        (void *)message, // Parameter to pass
+        1,               // Task priority
+        NULL             // Task handle
+    );
+
+    return ESP_OK;
+}
+
+void ESPNowService::sendTask(void *param) {
+    const char *message = (char *)param;
+    static espnow_frame_head_t frame_head = {
         .broadcast        = true,
         .retransmit_count = 5,
     };
 
-    return espnow_send(ESPNOW_DATA_TYPE_DATA, ESPNOW_ADDR_BROADCAST, message, strlen(message), &frame_head, portMAX_DELAY);
-    
+    ESP_LOGI(TAG, "sending text: %s", message);
+    esp_err_t ret = espnow_send(ESPNOW_DATA_TYPE_DATA, ESPNOW_ADDR_BROADCAST, message, strlen(message), &frame_head, portMAX_DELAY);
+    ESP_LOGI(TAG, "sent text: %s", message);
+
+    vTaskDelete(NULL);
 }

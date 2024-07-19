@@ -62,8 +62,10 @@ void MessagePage::send_btn_event_cb(lv_event_t *e) {
         // Handle save action
         const char *text = lv_textarea_get_text(MessagePage::getInstance()->text_area);
         // Save the text or perform any other action
-        ESP_LOGD("MessagePage", "Sending text: %s", text);
+        ESP_LOGI("MessagePage", "Sending text: %s", text);
 
         ESPNowService::getInstance()->sendMessage(text);
+
+        lv_textarea_set_text(MessagePage::getInstance()->text_area, "");
     }
 }
