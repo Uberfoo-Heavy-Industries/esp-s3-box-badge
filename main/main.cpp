@@ -15,6 +15,7 @@
 #include "MainPage.h"
 #include "MenuPage.h"
 #include "NamePage.h"
+#include "MessagePage.h"
 #include "DemoSettingsPage.h"
 #include "ESPNowService.h"
 
@@ -67,6 +68,7 @@ extern "C" int app_main()
     MainPage::getInstance(scr);
     MenuPage::getInstance(scr);
     NamePage::getInstance(scr);
+    MessagePage::getInstance(scr);
     DemoSettingsPage::getInstance(scr);
 
     // Load the main page initially
