@@ -29,7 +29,7 @@ private:
     lv_obj_t *canvas;
     lv_obj_t *top_pane;
     lv_obj_t *label;
-
+    lv_obj_t *new_msg_img;
     static MainPage *instance;
 };
 

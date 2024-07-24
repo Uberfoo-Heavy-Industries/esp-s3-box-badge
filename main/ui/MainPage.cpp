@@ -36,6 +36,12 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     lv_obj_set_size(top_pane, BSP_LCD_H_RES, BSP_LCD_V_RES / 2);
     lv_obj_align_to(top_pane, parent, LV_ALIGN_TOP_MID, 0, 0);
     
+    lv_obj_t *img = lv_img_create(top_pane);
+    lv_obj_add_flag(img, LV_OBJ_FLAG_HIDDEN);
+    lv_img_set_src(img, "S:/spiffs/speech-balloon.png");
+    lv_obj_set_size(img, 25, 25);
+    lv_obj_align(img, LV_ALIGN_TOP_RIGHT, 0, 0);
+    
     static lv_style_t label_style;
     lv_style_init(&label_style);
     lv_style_set_text_color(&label_style, lv_color_white());
