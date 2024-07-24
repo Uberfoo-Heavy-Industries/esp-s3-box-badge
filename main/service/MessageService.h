@@ -21,6 +21,7 @@ private:
 
 public:
     std::list<message_pkt_t *> current_msgs;
+    uint8_t mac[6];
     
     MessageService();
 

@@ -14,10 +14,17 @@ MessageService::MessageService() {
     ESP_LOGI("MessageService", "starting message service");
     espNowService = ESPNowService::getInstance();
     espNowService->registerCallback(std::bind(&MessageService::recieveMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    esp_wifi_get_mac(WIFI_IF_STA, mac);
 }
 
 void MessageService::recieveMessage(uint8_t *src_addr, message_pkt_t *pkt, wifi_pkt_rx_ctrl_t *rx_ctrl) {
     ESP_LOGI("MessageService", "message recieved: %i@" MACSTR " TTL=%i", pkt->msg_num, MAC2STR(pkt->mac), pkt->ttl);
+
+    // Check if this is our own message
+    if (std::memcmp(mac, pkt->mac, 6) == 0) {
+        ESP_LOGI("MessageService", "Ignoring our own message: %i@" MACSTR "", pkt->msg_num, MAC2STR(pkt->mac));
+        return;
+    }
     
     // Check if we already have the message
     auto it = std::find_if(current_msgs.begin(), current_msgs.end(), [pkt](message_pkt_t *value) {
@@ -28,7 +35,7 @@ void MessageService::recieveMessage(uint8_t *src_addr, message_pkt_t *pkt, wifi_
         return false;
     });
 
-    if (it == current_msgs.end()) {
+    if (it != current_msgs.end()) {
         // We already have this message ignore it
         ESP_LOGI("MessageService", "Dropping duplicate message: %i@" MACSTR "", pkt->msg_num, MAC2STR(pkt->mac));
         return;
