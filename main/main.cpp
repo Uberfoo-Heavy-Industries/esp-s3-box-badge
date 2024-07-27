@@ -12,20 +12,20 @@
 #include "main.h"
 #include "metaballs.h"
 #include "fire.h"
+#include "Page.h"
 #include "MainPage.h"
 #include "MenuPage.h"
 #include "NamePage.h"
 #include "MessagePage.h"
 #include "DemoSettingsPage.h"
+#include "MessageLogPage.h"
 #include "ESPNowService.h"
 #include "MessageService.h"
 
 void button_cb(void *button_handle, void *usr_data) {
     bsp_display_lock(0);
     ESP_LOGD("button", "Button event.");
-    if (MainPage::getInstance()->is_active()) {
-        MainPage::getInstance()->hide();
-    }
+    Page::hideAll();
     MenuPage::getInstance()->show();
     bsp_display_unlock();
 }
@@ -71,6 +71,7 @@ extern "C" int app_main()
     NamePage::getInstance(scr);
     MessagePage::getInstance(scr);
     DemoSettingsPage::getInstance(scr);
+    MessageLogPage::getInstance(scr);
 
     // Load the main page initially
     MainPage::getInstance()->show();

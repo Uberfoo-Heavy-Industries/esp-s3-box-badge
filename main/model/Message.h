@@ -11,8 +11,17 @@
 typedef struct message_pkt {
     uint8_t ttl;
     uint8_t mac[MAC_LEN];
-    char *username[NAME_LEN];
-    char *text[TEXT_LEN];
+    char username[NAME_LEN];
+    char text[TEXT_LEN];
 
 } message_pkt_t;
 
+class Message {
+
+public:
+    char *username;
+    char *text;
+
+    Message(message_pkt_t pkt);
+    Message(char *username, char *text);
+};
