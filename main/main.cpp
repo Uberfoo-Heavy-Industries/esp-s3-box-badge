@@ -78,8 +78,8 @@ extern "C" int app_main()
 
     bsp_display_unlock();
     
-    ESPNowService::getInstance();
-    MessageService::getInstance();
+    // ESPNowService::getInstance();
+    // MessageService::getInstance();
 
     ESP_LOGI("main", "\tDescription\tInternal\tSPIRAM");
     ESP_LOGI("main", "Current Free Memory\t%d\t\t%d",

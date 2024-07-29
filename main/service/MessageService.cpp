@@ -53,6 +53,12 @@ void MessageService::recieveMessage(uint8_t *src_addr, message_pkt_t *pkt, wifi_
 
     current_msgs.push_back(pktCopy);
 
+    if (current_msgs.size() > 5) {
+        message_pkt_t *old = current_msgs.front();
+        current_msgs.pop_front();
+        heap_caps_free(old);
+    }
+
     char *username = (char *)heap_caps_malloc(NAME_LEN + 1, MALLOC_CAP_SPIRAM);
     memset(username, 0, NAME_LEN + 1);
     char *text = (char *)heap_caps_malloc(TEXT_LEN + 1, MALLOC_CAP_SPIRAM);
@@ -60,7 +66,11 @@ void MessageService::recieveMessage(uint8_t *src_addr, message_pkt_t *pkt, wifi_
     strcpy(username, pkt->username);
     strcpy(text, pkt->text);
 
-    invokeCallbacks(username, text);
+    ESP_LOGI("MessageService", "msg: %s: %s", username, text);
+    // invokeCallbacks(username, text);
+
+    heap_caps_free(username);
+    heap_caps_free(text);
 }
 
 void MessageService::registerCallback(MessageSvcRcvCb callback) {
