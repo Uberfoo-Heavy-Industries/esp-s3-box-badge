@@ -7,6 +7,8 @@
 MessagePage* MessagePage::instance = nullptr;
 
 MessagePage::MessagePage(lv_obj_t *parent) : Page(parent) {
+    bsp_display_lock(0);
+
     // Create a text area
     text_area = lv_textarea_create(page);
     lv_obj_set_size(text_area, 300, 40);
@@ -33,6 +35,8 @@ MessagePage::MessagePage(lv_obj_t *parent) : Page(parent) {
     lv_obj_t *back_btn_label = lv_label_create(back_btn);
     lv_label_set_text(back_btn_label, "Back");
     lv_obj_add_event_cb(back_btn, back_btn_event_cb, LV_EVENT_CLICKED, this);
+
+    bsp_display_unlock();
 }
 
 MessagePage* MessagePage::getInstance(lv_obj_t *parent) {
@@ -43,9 +47,13 @@ MessagePage* MessagePage::getInstance(lv_obj_t *parent) {
 }
 
 void MessagePage::show() {
+    bsp_display_lock(0);
+
     const char *name = SettingsService::getInstance()->getName();
     lv_textarea_set_text(text_area, name);
     Page::show();
+
+    bsp_display_unlock();
 }
 
 void MessagePage::back_btn_event_cb(lv_event_t *e) {

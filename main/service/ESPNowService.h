@@ -9,6 +9,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 
 #include "esp_log.h"
 #include "esp_system.h"
@@ -18,6 +19,8 @@
 #include "espnow.h"
 #include "espnow_storage.h"
 #include "espnow_utils.h"
+
+#include "SettingsService.h"
 
 #define MAC_LEN     6
 #define TTL_LEN     1
@@ -41,9 +44,10 @@ class ESPNowService {
 
 private:
     wifi_init_config_t cfg;
+    QueueHandle_t messageQueue;
 
     static ESPNowService *instance;
-    static uint8_t counter;
+    static SettingsService *settingsService;
 
     static esp_err_t messageCallback(uint8_t *src_addr, void *data, size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl);
     static void sendTask(void *param);

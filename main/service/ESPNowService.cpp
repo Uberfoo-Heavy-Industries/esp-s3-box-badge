@@ -3,7 +3,12 @@
 
 static const char *TAG = "ESPNowService";
 
+ESPNowService *ESPNowService::instance = nullptr;
+SettingsService *ESPNowService::settingsService = nullptr;
+
 ESPNowService::ESPNowService() {
+    settingsService = SettingsService::getInstance();
+
     espnow_storage_init();
 
     cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -19,15 +24,21 @@ ESPNowService::ESPNowService() {
     espnow_config_t espnow_config = ESPNOW_INIT_CONFIG_DEFAULT();
     espnow_init(&espnow_config);
 
+    messageQueue = xQueueCreate(5, sizeof(message_pkt_t)); // Queue can hold 10 Message structures
+    if (messageQueue == NULL) {
+        // Handle error: Queue creation failed
+        printf("Failed to create queue.\n");
+        return;
+    }
+
+    xTaskCreate(sendTask, "send_message", 4096, &messageQueue, 0, NULL);
+
     espnow_set_config_for_data_type(ESPNOW_DATA_TYPE_DATA, true, messageCallback);
 }
 
 ESPNowService::~ESPNowService() {
 
 }
-
-uint8_t ESPNowService::counter = 0;
-ESPNowService *ESPNowService::instance = nullptr;
 
 ESPNowService *ESPNowService::getInstance() {
     if (instance == nullptr) {
@@ -60,45 +71,44 @@ esp_err_t ESPNowService::sendMessage(const char *message) {
 
     message_pkt_t *pkt = (message_pkt_t *)heap_caps_malloc(sizeof(message_pkt_t), MALLOC_CAP_SPIRAM);
     esp_wifi_get_mac(WIFI_IF_STA, pkt->mac);
-    pkt->msg_num = counter++;
+    pkt->msg_num = settingsService->getAndIncrement("msg_count");
     pkt->ttl = TTL;
     const char *name = SettingsService::getInstance()->getName();
     strncpy(pkt->username, name, NAME_LEN);
     strncpy(pkt->text, message, TEXT_LEN);
 
+    invokeCallbacks(pkt->mac, pkt, nullptr);
     return sendPkt(pkt);
 }
 
 esp_err_t ESPNowService::sendPkt(const message_pkt_t *pkt) {
     ESP_LOGI(TAG, "sending pkt: %i", pkt->msg_num);
-    message_pkt_t *clone = (message_pkt_t*)heap_caps_malloc(sizeof(message_pkt_t), MALLOC_CAP_SPIRAM);
-    memcpy(clone, pkt, sizeof(message_pkt_t));
-    xTaskCreate(
-        sendTask,        // Function that should be called
-        "send packet",  // Name of the task (for debugging)
-        2048,            // Stack size (bytes)
-        (void *)clone,     // Parameter to pass
-        1,               // Task priority
-        NULL             // Task handle
-    );
+
+    // Send the message to the queue
+    if (xQueueSend(messageQueue, pkt, portMAX_DELAY) != pdPASS) {
+        // Handle error: Failed to send message
+        ESP_LOGE(TAG, "Failed to send pkt to queue: %i", pkt->msg_num);
+        return -1;
+    }
 
     return ESP_OK;
-
 }
 
 void ESPNowService::sendTask(void *param) {
-    const message_pkt_t *pkt = (message_pkt_t *)param;
-    static espnow_frame_head_t frame_head = {
-        .broadcast        = true,
-        .retransmit_count = 5,
-    };
+    QueueHandle_t *messageQueue = (QueueHandle_t *)param;
+    while (1) {
+        message_pkt_t pkt;
+        if (xQueueReceive(*messageQueue, &pkt, portMAX_DELAY) == pdPASS) {
+            static espnow_frame_head_t frame_head = {
+                .broadcast        = true,
+                .retransmit_count = 5,
+            };
 
-    ESP_ERROR_CHECK(espnow_send(ESPNOW_DATA_TYPE_DATA, ESPNOW_ADDR_BROADCAST, pkt, sizeof(message_pkt_t), &frame_head, portMAX_DELAY));
-    
-    ESP_LOGI(TAG, "sent message %i: %s", pkt->msg_num, pkt->text);
-
-    heap_caps_free((void *)pkt);
-    vTaskDelete(NULL);
+            ESP_ERROR_CHECK(espnow_send(ESPNOW_DATA_TYPE_DATA, ESPNOW_ADDR_BROADCAST, &pkt, sizeof(message_pkt_t), &frame_head, portMAX_DELAY));
+            
+            ESP_LOGI(TAG, "sent message %i: %s", pkt.msg_num, pkt.text);
+        }
+    }
 }
 
 void ESPNowService::registerCallback(ESPNowSvcCb callback) {
