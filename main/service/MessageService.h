@@ -15,7 +15,9 @@
 #include "freertos/semphr.h"
 
 #include "ESPNowService.h"
-#include "SettingsService.h"
+#include "PersistenceService.h"
+#include "AudioService.h"
+#include "message.h"
 
 typedef std::function<void(const char *username, const char *text)> MessageSvcRcvCb;
 
@@ -24,7 +26,8 @@ class MessageService {
 private:
     static MessageService *instance;
     static ESPNowService *espNowService;
-    static SettingsService *settingsService;
+    static PersistenceService *settingsService;
+    static AudioService *audioService;
 
     std::vector<MessageSvcRcvCb> callbacks;
 

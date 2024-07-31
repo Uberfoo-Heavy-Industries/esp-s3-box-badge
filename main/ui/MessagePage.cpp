@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "MessagePage.h"
 #include "MenuPage.h"
-#include "SettingsService.h"
+#include "PersistenceService.h"
 #include "ESPNowService.h"
 
 MessagePage* MessagePage::instance = nullptr;
@@ -49,7 +49,7 @@ MessagePage* MessagePage::getInstance(lv_obj_t *parent) {
 void MessagePage::show() {
     bsp_display_lock(0);
 
-    const char *name = SettingsService::getInstance()->getName();
+    const char *name = PersistenceService::getInstance()->getName();
     lv_textarea_set_text(text_area, name);
     Page::show();
 

@@ -2,6 +2,7 @@
 #define _MESSAGE_PAGE_H_
 
 #include "Page.h"
+#include "message.h"
 
 class MessagePage : public Page {
 public:

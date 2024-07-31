@@ -1,4 +1,4 @@
-file(GLOB_RECURSE SOURCES "*.cpp")
+file(GLOB_RECURSE SOURCES "*.cpp" "*.c")
 idf_component_register(SRCS ${SOURCES}
                     INCLUDE_DIRS "." "demo" "ui" "service")
 

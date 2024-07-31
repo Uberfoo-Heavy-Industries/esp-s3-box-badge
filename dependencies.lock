@@ -1,4 +1,16 @@
 dependencies:
+  chmorgan/esp-audio-player:
+    component_hash: 91db3ef5b4ac2185ffb94a069ab0c4731170a20f9d46470f3f071ca22a475d5c
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.0.5
+  chmorgan/esp-libhelix-mp3:
+    component_hash: cbb76089dc2c5749f7b470e2e70aedc44c9da519e04eb9a67d4c7ec275229e53
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.0.3
   espressif/button:
     component_hash: b115c8797f89b883265441aeedf4973a6d49c53bec55159767cdd9cbcd27f328
     source:
@@ -76,6 +88,6 @@ dependencies:
       service_url: https://api.components.espressif.com/
       type: service
     version: 8.4.0
-manifest_hash: 18770274ce58927fd911f9636afd5775e8be3f36ac242c1ba3d791fb6a60c77a
+manifest_hash: 599de7586dcf24c2e335f4420a2f06fab4b20bb9ed4be6464d5ababcfccc83b4
 target: esp32s3
 version: 1.0.0

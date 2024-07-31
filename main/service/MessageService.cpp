@@ -2,6 +2,7 @@
 
 MessageService *MessageService::instance = nullptr;
 ESPNowService *MessageService::espNowService = nullptr;
+AudioService *MessageService::audioService = nullptr;
 SemaphoreHandle_t MessageService::xMutex = nullptr; 
 
 MessageService *MessageService::getInstance() {
@@ -22,6 +23,8 @@ MessageService::MessageService() {
             return;
         }
     }
+
+    audioService = AudioService::getInstance();
 
     espNowService = ESPNowService::getInstance();
     espNowService->registerCallback(std::bind(&MessageService::recieveMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
@@ -81,6 +84,8 @@ void MessageService::recieveMessage(uint8_t *src_addr, message_pkt_t *pkt, wifi_
         memset(text, 0, TEXT_LEN + 1);
         strcpy(username, pkt->username);
         strcpy(text, pkt->text);
+
+        if (rx_ctrl != nullptr) audioService->playNotification();
 
         ESP_LOGI("MessageService", "msg: %s: %s", username, text);
         invokeCallbacks(username, text);

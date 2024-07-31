@@ -3,7 +3,7 @@
 
 #include "MainPage.h"
 #include "MenuPage.h"
-#include "SettingsService.h"
+#include "PersistenceService.h"
 #include "metaballs.h"
 #include "fire.h"
 
@@ -49,7 +49,7 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
 
     label = lv_label_create(top_pane);
     lv_obj_add_style(label, &label_style, LV_PART_MAIN);
-    lv_label_set_text(label, SettingsService::getInstance()->getName());
+    lv_label_set_text(label, PersistenceService::getInstance()->getName());
     lv_obj_align_to(label, top_pane, LV_ALIGN_CENTER, 0, 0);
 
     static lv_style_t label2_style;
@@ -81,7 +81,7 @@ void MainPage::show() {
     }
 
     // Update text
-    lv_label_set_text(label, SettingsService::getInstance()->getName());
+    lv_label_set_text(label, PersistenceService::getInstance()->getName());
     lv_obj_align_to(label, top_pane, LV_ALIGN_CENTER, 0, 0);
 
     Page::show();

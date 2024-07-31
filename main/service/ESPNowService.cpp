@@ -1,13 +1,13 @@
 #include "ESPNowService.h"
-#include "SettingsService.h"
+#include "PersistenceService.h"
 
 static const char *TAG = "ESPNowService";
 
 ESPNowService *ESPNowService::instance = nullptr;
-SettingsService *ESPNowService::settingsService = nullptr;
+PersistenceService *ESPNowService::settingsService = nullptr;
 
 ESPNowService::ESPNowService() {
-    settingsService = SettingsService::getInstance();
+    settingsService = PersistenceService::getInstance();
 
     espnow_storage_init();
 
@@ -73,7 +73,7 @@ esp_err_t ESPNowService::sendMessage(const char *message) {
     esp_wifi_get_mac(WIFI_IF_STA, pkt->mac);
     pkt->msg_num = settingsService->getAndIncrement("msg_count");
     pkt->ttl = TTL;
-    const char *name = SettingsService::getInstance()->getName();
+    const char *name = PersistenceService::getInstance()->getName();
     strncpy(pkt->username, name, NAME_LEN);
     strncpy(pkt->text, message, TEXT_LEN);
 

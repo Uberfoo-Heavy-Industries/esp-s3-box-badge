@@ -2,6 +2,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include "bsp/esp-bsp.h"
+#include "bsp_board.h"
 #include "esp_system.h"
 #include "esp_heap_caps.h"
 #include "esp_log.h"
@@ -59,10 +60,14 @@ extern "C" int app_main()
 
      /* Mount SPIFFS */
     bsp_spiffs_mount();
-
+    
+    /* Configure I2S peripheral and Power Amplifier */
+    bsp_board_init();
+    
+    /* Lock display operations */
     bsp_display_lock(0);
 
-        // Create a screen object
+    // Create a screen object
     lv_obj_t *scr = lv_scr_act();
 
     // Initialize pages

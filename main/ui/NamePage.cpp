@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "NamePage.h"
 #include "MenuPage.h"
-#include "SettingsService.h"
+#include "PersistenceService.h"
 
 NamePage* NamePage::instance = nullptr;
 
@@ -11,7 +11,7 @@ NamePage::NamePage(lv_obj_t *parent) : Page(parent) {
     lv_obj_set_size(text_area, 300, 40);
     lv_obj_align(text_area, LV_ALIGN_TOP_MID, 0, 5);
 
-    const char *name = SettingsService::getInstance()->getName();
+    const char *name = PersistenceService::getInstance()->getName();
     lv_textarea_set_text(text_area, name);
 
     // Create a keyboard
@@ -45,7 +45,7 @@ NamePage* NamePage::getInstance(lv_obj_t *parent) {
 }
 
 void NamePage::show() {
-    const char *name = SettingsService::getInstance()->getName();
+    const char *name = PersistenceService::getInstance()->getName();
     lv_textarea_set_text(text_area, name);
     Page::show();
 }
@@ -66,6 +66,6 @@ void NamePage::save_btn_event_cb(lv_event_t *e) {
         // Save the text or perform any other action
         ESP_LOGD("NamePage", "Saving text: %s", text);
 
-        SettingsService::getInstance()->setName(text);
+        PersistenceService::getInstance()->setName(text);
     }
 }
