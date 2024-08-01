@@ -35,7 +35,6 @@ public:
 private:
     PersistenceService();
     ~PersistenceService();
-    nvs_handle_t handle;
     static SemaphoreHandle_t xMutex;
     static PersistenceService *instance;
     

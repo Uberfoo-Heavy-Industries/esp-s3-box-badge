@@ -3,6 +3,7 @@
 MessageService *MessageService::instance = nullptr;
 ESPNowService *MessageService::espNowService = nullptr;
 AudioService *MessageService::audioService = nullptr;
+PersistenceService *MessageService::persistenceService = nullptr;
 SemaphoreHandle_t MessageService::xMutex = nullptr; 
 
 MessageService *MessageService::getInstance() {
@@ -71,6 +72,7 @@ void MessageService::recieveMessage(uint8_t *src_addr, message_pkt_t *pkt, wifi_
         }
 
         current_msgs.push_back(pktCopy);
+        persistenceService->persistMessage(pktCopy);
 
         if (current_msgs.size() > 5) {
             message_pkt_t *old = current_msgs.front();

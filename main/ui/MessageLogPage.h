@@ -15,6 +15,8 @@ public:
     void show() override;
     void addMessage(const char *username, const char *text);
 
+    void scrollToBottom();
+
 private:
     MessageService *messageService;
     MessageLogPage(lv_obj_t *parent);
@@ -22,6 +24,7 @@ private:
     std::vector<char *> messages;
 
     static MessageLogPage *instance;
+    static PersistenceService *persistenceService;
 };
 
 #endif // _MESSAGE_LOG_PAGE_H

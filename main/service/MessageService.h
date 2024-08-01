@@ -26,7 +26,7 @@ class MessageService {
 private:
     static MessageService *instance;
     static ESPNowService *espNowService;
-    static PersistenceService *settingsService;
+    static PersistenceService *persistenceService;
     static AudioService *audioService;
 
     std::vector<MessageSvcRcvCb> callbacks;

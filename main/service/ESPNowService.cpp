@@ -4,10 +4,10 @@
 static const char *TAG = "ESPNowService";
 
 ESPNowService *ESPNowService::instance = nullptr;
-PersistenceService *ESPNowService::settingsService = nullptr;
+PersistenceService *ESPNowService::persistenceService = nullptr;
 
 ESPNowService::ESPNowService() {
-    settingsService = PersistenceService::getInstance();
+    persistenceService = PersistenceService::getInstance();
 
     espnow_storage_init();
 
@@ -71,7 +71,7 @@ esp_err_t ESPNowService::sendMessage(const char *message) {
 
     message_pkt_t *pkt = (message_pkt_t *)heap_caps_malloc(sizeof(message_pkt_t), MALLOC_CAP_SPIRAM);
     esp_wifi_get_mac(WIFI_IF_STA, pkt->mac);
-    pkt->msg_num = settingsService->getAndIncrement("msg_count");
+    pkt->msg_num = persistenceService->getAndIncrement("msg_count");
     pkt->ttl = TTL;
     const char *name = PersistenceService::getInstance()->getName();
     strncpy(pkt->username, name, NAME_LEN);

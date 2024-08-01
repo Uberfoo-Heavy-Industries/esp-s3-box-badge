@@ -34,7 +34,7 @@ private:
     QueueHandle_t messageQueue;
 
     static ESPNowService *instance;
-    static PersistenceService *settingsService;
+    static PersistenceService *persistenceService;
 
     static esp_err_t messageCallback(uint8_t *src_addr, void *data, size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl);
     static void sendTask(void *param);
