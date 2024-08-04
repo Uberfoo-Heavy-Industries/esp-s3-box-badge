@@ -77,8 +77,12 @@ esp_err_t ESPNowService::sendMessage(const char *message) {
     strncpy(pkt->username, name, NAME_LEN);
     strncpy(pkt->text, message, TEXT_LEN);
 
+    esp_err_t ret = sendPkt(pkt);
+    if (ret != ESP_OK) {
+        return ret;
+    }
     invokeCallbacks(pkt->mac, pkt, nullptr);
-    return sendPkt(pkt);
+    return ESP_OK;
 }
 
 esp_err_t ESPNowService::sendPkt(const message_pkt_t *pkt) {

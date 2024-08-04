@@ -27,6 +27,14 @@ PersistenceService::PersistenceService() {
         }
         ESP_ERROR_CHECK(ret);
         ESP_LOGI(TAG, "nvs initialized");
+    
+        nvs_handle_t handle;
+        ret = nvs_open("storage", NVS_READWRITE, &handle);
+        if (ret != ESP_OK) {
+                ESP_LOGE(TAG, "Error (%s) opening NVS handle! (140)\n", esp_err_to_name(ret));
+        } else {
+            nvs_close(handle);
+        }
         xSemaphoreGive(xMutex);
     } else {
         ESP_LOGE(TAG, "Couldn't take semaphore");
@@ -54,7 +62,7 @@ void PersistenceService::setName(const char *name) {
         nvs_handle_t handle;
         esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Error (%s) opening NVS handle!\n", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (57)\n", esp_err_to_name(ret));
         } else {
             // Write value to NVS
             ret = nvs_set_str(handle, "name", name);
@@ -86,7 +94,7 @@ const char *PersistenceService::getName() {
         nvs_handle_t handle;
         esp_err_t ret = nvs_open("storage", NVS_READONLY, &handle);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Error (%s) opening NVS handle!\n", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (89)\n", esp_err_to_name(ret));
         } else {
             size_t size = 0;
             char *value_read;
@@ -137,7 +145,7 @@ uint8_t PersistenceService::getAndIncrement(const char *key) {
         nvs_handle_t handle;
         esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Error (%s) opening NVS handle!\n", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (140)\n", esp_err_to_name(ret));
         } else {
             ret = nvs_get_u8(handle, key, &value);
             switch (ret) {
@@ -189,7 +197,7 @@ void PersistenceService::persistMessage(message_pkt_t *pkt) {
         nvs_handle_t handle;
         esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Error (%s) opening NVS handle!\n", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (192)\n", esp_err_to_name(ret));
         } else {
             ret = nvs_set_blob(handle, "messages", blob, sizeof(messages_blob_t)); // set the incremented default
             if (ret != ESP_OK) {
@@ -217,7 +225,7 @@ messages_blob_t *PersistenceService::getMessages() {
         nvs_handle_t handle;
         esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Error (%s) opening NVS handle!\n", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (220)\n", esp_err_to_name(ret));
         } else {
             ret = nvs_get_blob(handle, "messages", value, &size);
             switch (ret) {

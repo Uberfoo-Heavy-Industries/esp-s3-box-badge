@@ -67,7 +67,8 @@ void MessagePage::back_btn_event_cb(lv_event_t *e) {
 void MessagePage::send_btn_event_cb(lv_event_t *e) {
     lv_event_code_t code = lv_event_get_code(e);
     if (code == LV_EVENT_CLICKED) {
-        // Handle save action
+        lv_obj_add_state(e->target, LV_STATE_DISABLED);
+        // Handle save 
         const char *text = lv_textarea_get_text(MessagePage::getInstance()->text_area);
         // Save the text or perform any other action
         ESP_LOGI("MessagePage", "Sending text: %s", text);
@@ -75,5 +76,6 @@ void MessagePage::send_btn_event_cb(lv_event_t *e) {
         ESPNowService::getInstance()->sendMessage(text);
 
         lv_textarea_set_text(MessagePage::getInstance()->text_area, "");
+        lv_obj_clear_state(e->target, LV_STATE_DISABLED);
     }
 }
