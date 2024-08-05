@@ -28,6 +28,7 @@ public:
 
     void setName(const char *name);
     const char *getName();
+    uint32_t getStateBits(const char *key, uint32_t default_val);
     uint8_t getAndIncrement(const char *key);
     void persistMessage(message_pkt_t *pkt);
     messages_blob_t *getMessages();

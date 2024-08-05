@@ -2,7 +2,7 @@
 
 MIT No Attribution
 
-Copyright (c) 2020-2023 Mika Tuupola
+Copyright (c) 2021-2023 Mika Tuupola
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,19 +25,22 @@ SPDX-License-Identifier: MIT-0
 
 */
 
+#ifndef _DEFORM_H_
+#define _DEFORM_H_
+
 #include "lvgl.h"
 #include "demo.h"
 
-class Metaballs : public Demo {
-    private:
+class Deform : public Demo {
+private:
+    int8_t *lut;
+    uint32_t frame;
 
-    const lv_color_t background = lv_color_make(0,0,0);
-    const lv_color_t black = lv_color_make(0,0,0);
-    const lv_color_t white = lv_color_make(255,255,255);
-    const lv_color_t green = lv_color_make(0,255,0);
+public:
+    Deform(lv_obj_t * canvas, uint16_t width, uint16_t height);
+    ~Deform();
 
-    public: 
-    
-    Metaballs(lv_obj_t * canvas, uint16_t width, uint16_t height);
     void renderFrame() override;
 };
+
+#endif

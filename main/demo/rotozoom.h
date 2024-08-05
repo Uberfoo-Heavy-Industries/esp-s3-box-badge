@@ -2,7 +2,7 @@
 
 MIT No Attribution
 
-Copyright (c) 2020-2023 Mika Tuupola
+Copyright (c) 2021-2023 Mika Tuupola
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,19 +25,24 @@ SPDX-License-Identifier: MIT-0
 
 */
 
+#ifndef _ROTOZOOM_H_
+#define _ROTOZOOM_H_
+
 #include "lvgl.h"
 #include "demo.h"
 
-class Metaballs : public Demo {
-    private:
+class Rotozoom : public Demo {
+private:
+    uint16_t angle;
+    float sinlut[360];
+    float coslut[360];
 
-    const lv_color_t background = lv_color_make(0,0,0);
-    const lv_color_t black = lv_color_make(0,0,0);
-    const lv_color_t white = lv_color_make(255,255,255);
-    const lv_color_t green = lv_color_make(0,255,0);
 
-    public: 
-    
-    Metaballs(lv_obj_t * canvas, uint16_t width, uint16_t height);
+public:
+    Rotozoom(lv_obj_t * canvas, uint16_t width, uint16_t height);
+    ~Rotozoom();
+
     void renderFrame() override;
 };
+
+#endif

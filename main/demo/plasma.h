@@ -25,19 +25,21 @@ SPDX-License-Identifier: MIT-0
 
 */
 
+#ifndef _PLASMA_H_
+#define _PLASMA_H_
+
 #include "lvgl.h"
 #include "demo.h"
 
-class Metaballs : public Demo {
-    private:
+class Plasma : public Demo {
+private:
+    uint8_t *plasma;
+    lv_color_t *palette;
 
-    const lv_color_t background = lv_color_make(0,0,0);
-    const lv_color_t black = lv_color_make(0,0,0);
-    const lv_color_t white = lv_color_make(255,255,255);
-    const lv_color_t green = lv_color_make(0,255,0);
-
-    public: 
-    
-    Metaballs(lv_obj_t * canvas, uint16_t width, uint16_t height);
+public:
+    Plasma(lv_obj_t * canvas, uint16_t width, uint16_t height);
+    ~Plasma();
     void renderFrame() override;
 };
+
+#endif

@@ -136,6 +136,38 @@ const char *PersistenceService::getName() {
     return nullptr;
 }
 
+uint32_t PersistenceService::getStateBits(const char *key, uint32_t default_val) {
+    uint32_t value = default_val;
+    // Attempt to take the mutex, wait indefinitely if necessary
+    if (xSemaphoreTake(xMutex, portMAX_DELAY) == pdTRUE) {
+        // Read value from NVS
+        nvs_handle_t handle;
+        esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (89)\n", esp_err_to_name(ret));
+        } else {
+            ret = nvs_get_u32(handle, "name", &value);
+            switch (ret) {
+                case ESP_OK:
+                    break;
+                case ESP_ERR_NVS_NOT_FOUND:
+                    ESP_LOGI(TAG, "The %s value is not initialized yet!", key);
+                    value = default_val;
+                    nvs_set_u32(handle, key, default_val);
+                default :
+                    ESP_LOGE(TAG, "Error (%s) reading !\n", esp_err_to_name(ret));
+            }
+            nvs_close(handle);
+        }
+        xSemaphoreGive(xMutex);
+        return value;
+    } else {
+        ESP_LOGE(TAG, "Couldn't take semaphore");
+    }
+
+    return value;
+}
+
 uint8_t PersistenceService::getAndIncrement(const char *key) {
 
     uint8_t value = 0;
@@ -251,3 +283,4 @@ messages_blob_t *PersistenceService::getMessages() {
     }
     return value;
 }
+

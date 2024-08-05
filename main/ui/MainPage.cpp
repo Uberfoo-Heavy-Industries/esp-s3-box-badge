@@ -6,6 +6,9 @@
 #include "PersistenceService.h"
 #include "metaballs.h"
 #include "fire.h"
+#include "plasma.h"
+#include "deform.h"
+#include "rotozoom.h"
 
 // Initialize the static member
 MainPage* MainPage::instance = nullptr;
@@ -105,7 +108,7 @@ void MainPage::demo_task(void *obj) {
 
     demo_task_params *params = (demo_task_params *)obj;
     ESP_LOGD("demo_task", "dimensions: (%d, %d)", params->width, params->height);
-    Demo *demo = new Fire(params->canvas, params->width, params->height);
+    Demo *demo = new Rotozoom(params->canvas, params->width, params->height);
     while (true) {
         bsp_display_lock(0);
         demo->renderFrame();
