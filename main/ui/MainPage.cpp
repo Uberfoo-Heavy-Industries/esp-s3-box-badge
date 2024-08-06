@@ -14,6 +14,11 @@
 MainPage* MainPage::instance = nullptr;
 
 MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
+    state = PersistenceService::getInstance()->getStateBits("demos", DEFAULT_DEMO_STATE);
+
+    lock = xSemaphoreCreateMutex();
+    ESP_LOGI("MainPage", "state: %lx", state);
+
     buf = (lv_color_t *)heap_caps_malloc(LV_CANVAS_BUF_SIZE_TRUE_COLOR(BSP_LCD_H_RES, BSP_LCD_V_RES / 2), MALLOC_CAP_DEFAULT);
 
     canvas = lv_canvas_create(parent);
@@ -67,6 +72,9 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     lv_label_set_text(label2, "UBERFOO HEAVY INDUSTRIES");
     lv_obj_align_to(label2, canvas, LV_ALIGN_TOP_MID, 0, 40);
 
+    if (state != 0) loadDemo();
+
+    timer_handle = xTimerCreate("demo_timer", DEMO_TIMEOUT, pdTRUE, nullptr, demo_timer_cb);
 }
 
 MainPage* MainPage::getInstance(lv_obj_t *parent) {
@@ -77,11 +85,14 @@ MainPage* MainPage::getInstance(lv_obj_t *parent) {
 }
 
 void MainPage::show() {
+    state = PersistenceService::getInstance()->getStateBits("demos", DEFAULT_DEMO_STATE);
+
     if (task_handle == nullptr) {
-        xTaskCreate(demo_task, "demo", 4096, &params, tskIDLE_PRIORITY + 1, &task_handle);
+        xTaskCreate(demo_task, "demo", 1024 * 8, this, tskIDLE_PRIORITY + 1, &task_handle);
     } else {
         vTaskResume(task_handle);
     }
+    xTimerStart(timer_handle, portMAX_DELAY);
 
     // Update text
     lv_label_set_text(label, PersistenceService::getInstance()->getName());
@@ -92,6 +103,7 @@ void MainPage::show() {
 
 void MainPage::hide() {
     vTaskSuspend(task_handle);
+    xTimerStop(timer_handle, portMAX_DELAY);
     Page::hide();
 }
 
@@ -106,13 +118,91 @@ void MainPage::menu_btn_event_cb(lv_event_t *e) {
 
 void MainPage::demo_task(void *obj) {
 
-    demo_task_params *params = (demo_task_params *)obj;
-    ESP_LOGD("demo_task", "dimensions: (%d, %d)", params->width, params->height);
-    Demo *demo = new Rotozoom(params->canvas, params->width, params->height);
-    while (true) {
-        bsp_display_lock(0);
-        demo->renderFrame();
-        bsp_display_unlock();
+    MainPage *page = (MainPage *)obj;
+    while (page->run) {
+        if (page->currentDemo) {
+            bsp_display_lock(0);
+            page->currentDemo->renderFrame();
+            bsp_display_unlock();
+        }
+    }
+    ESP_LOGI("MainPage", "giving semaphore");
+    xSemaphoreGive(page->lock);
+    vTaskDelete(NULL);
+}
+
+void MainPage::demo_timer_cb(TimerHandle_t handle) {
+    MainPage *page = MainPage::getInstance();
+    page->run = false;
+    xSemaphoreTake(page->lock, portMAX_DELAY);
+    ESP_LOGI("MainPage", "loading next demo");
+    page->getNextIndex();
+    page->loadDemo();
+    if (page->currentDemo) {
+        ESP_LOGI("MainPage", "starting task");
+        page->run = true;
+        xTaskCreate(demo_task, "demo", 1024 * 8, page, tskIDLE_PRIORITY + 1, &page->task_handle);
+    } else {
+        xSemaphoreGive(page->lock);
     }
 }
 
+void MainPage::getNextIndex() {
+    ++index %= DEMO_COUNT;
+    int i = 0;
+    while (!((1 << index) & state) && i < DEMO_COUNT) {
+        ESP_LOGI("MainPage", "index = %i, state = %lx", index, state);
+        ++index %= DEMO_COUNT;
+        i++;
+    }
+    if (i == DEMO_COUNT) {
+        index = -1;
+    }
+}
+
+void MainPage::loadDemo() {
+    if (currentDemo != nullptr) {
+        ESP_LOGI("MainPage", "freeing demo...");
+        currentDemo->~Demo();
+        heap_caps_free(demoBuf);
+    }
+
+    ESP_LOGI("MainPage", "\tDescription\tInternal\tSPIRAM");
+    ESP_LOGI("MainPage", "Current Free Memory\t%d\t\t%d",
+                heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
+                heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+    ESP_LOGI("MainPage", "Min. Ever Free Size\t%d\t\t%d",
+                heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL),
+                heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM));
+    ESP_LOGI("MainPage", "Largest Block Size\t%d\t\t%d",
+                heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL),
+                heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM));
+
+    ESP_LOGI("MainPage", "loading demo #%i", index);
+    switch (index) {
+        case 0:
+            demoBuf = (char *)heap_caps_malloc(sizeof(Fire), MALLOC_CAP_SPIRAM);
+            currentDemo = new Fire(canvas, params.width, params.height);
+            break;
+            
+        case 1:
+            demoBuf = (char *)heap_caps_malloc(sizeof(Metaballs), MALLOC_CAP_SPIRAM);
+            currentDemo = new Metaballs(canvas, params.width, params.height);
+            break;
+            
+        case 2:
+            demoBuf = (char *)heap_caps_malloc(sizeof(Rotozoom), MALLOC_CAP_SPIRAM);
+            currentDemo = new Rotozoom(canvas, params.width, params.height);
+            break;
+            
+        case 3:
+            demoBuf = (char *)heap_caps_malloc(sizeof(Deform), MALLOC_CAP_SPIRAM);
+            currentDemo = new Deform(canvas, params.width, params.height);
+            break;
+
+        default:
+            currentDemo = nullptr;  
+    }
+
+    ESP_LOGI("MainPage", "demo loaded...");
+}

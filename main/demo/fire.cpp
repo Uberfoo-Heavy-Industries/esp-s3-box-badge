@@ -48,7 +48,7 @@ Fire::Fire(lv_obj_t *canvas, uint16_t width, uint16_t height) : Demo(canvas, wid
 {
     this->canvas = canvas;
     ESP_LOGD("fire", "dimensions: (%d, %d)", width, height);
-    fire = (uint8_t *)heap_caps_malloc(width * height * 2, MALLOC_CAP_DEFAULT);
+    fire = (uint8_t *)heap_caps_malloc(width * height * 2, MALLOC_CAP_SPIRAM);
 
     if (fire == NULL) {
         ESP_LOGE("Fire", "Failed to allocate memory for fire buffer");
@@ -99,5 +99,7 @@ void Fire::renderFrame() {
 }
 
 Fire::~Fire() {
-    free(fire);
+    ESP_LOGI("Fire", "deconstructor");
+    heap_caps_free(fire);
+    ESP_LOGI("Fire", "decon done");
 }
