@@ -82,18 +82,22 @@ void MessageService::recieveMessage(uint8_t *src_addr, message_pkt_t *pkt, wifi_
 
         char *username = (char *)heap_caps_malloc(NAME_LEN + 1, MALLOC_CAP_SPIRAM);
         memset(username, 0, NAME_LEN + 1);
-        char *text = (char *)heap_caps_malloc(TEXT_LEN + 1, MALLOC_CAP_SPIRAM);
-        memset(text, 0, TEXT_LEN + 1);
         strcpy(username, pkt->username);
-        strcpy(text, pkt->text);
 
+        char *text;
+        if (strcmp(pkt->text, "CHALLENGE: HacMan") == 0 || strcmp(pkt->text, "challenge: hacman") == 0) {
+            invokeCallbacks(username, "RESPONSE: Ghost-Maze");
+        } else {
+            text = (char *)heap_caps_malloc(TEXT_LEN + 1, MALLOC_CAP_SPIRAM);
+            memset(text, 0, TEXT_LEN + 1);
+            strcpy(text, pkt->text);
+            invokeCallbacks(username, text);
+            ESP_LOGI("MessageService", "msg: %s: %s", username, text);
+            heap_caps_free(text);
+        }
         if (rx_ctrl != nullptr) audioService->playNotification();
 
-        ESP_LOGI("MessageService", "msg: %s: %s", username, text);
-        invokeCallbacks(username, text);
-
         heap_caps_free(username);
-        heap_caps_free(text);
         xSemaphoreGive(xMutex);
     } else {
         ESP_LOGE("MessageService", "Couldn't take semaphore");

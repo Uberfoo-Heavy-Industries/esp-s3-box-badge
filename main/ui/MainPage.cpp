@@ -57,12 +57,12 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     lv_style_set_text_color(&label2_style, lv_color_black());
     lv_style_set_text_font(&label2_style, &lv_font_montserrat_28);
 
-    lv_obj_t *label2 = lv_label_create(canvas);
-    lv_obj_add_style(label2, &label2_style, LV_PART_MAIN);
-    lv_obj_set_width(label2, BSP_LCD_H_RES);
-    lv_label_set_long_mode(label2, LV_LABEL_LONG_SCROLL_CIRCULAR);     /*Circular scroll*/
-    lv_label_set_text(label2, "UBERFOO HEAVY INDUSTRIES");
-    lv_obj_align_to(label2, canvas, LV_ALIGN_TOP_MID, 0, 40);
+    // lv_obj_t *label2 = lv_label_create(canvas);
+    // lv_obj_add_style(label2, &label2_style, LV_PART_MAIN);
+    // lv_obj_set_width(label2, BSP_LCD_H_RES);
+    // lv_label_set_long_mode(label2, LV_LABEL_LONG_SCROLL_CIRCULAR);     /*Circular scroll*/
+    // lv_label_set_text(label2, "UBERFOO HEAVY INDUSTRIES");
+    // lv_obj_align_to(label2, canvas, LV_ALIGN_TOP_MID, 0, 40);
 
 }
 

@@ -9,9 +9,6 @@
 MenuPage* MenuPage::instance = nullptr;
 
 MenuPage::MenuPage(lv_obj_t *parent) : Page(parent) {
-    // Initialize menu page content
-    lv_obj_t *label = lv_label_create(page);
-    lv_label_set_text(label, "Menu Page");
 
     // Create menu buttons
     lv_obj_t *btn1 = lv_btn_create(page);
