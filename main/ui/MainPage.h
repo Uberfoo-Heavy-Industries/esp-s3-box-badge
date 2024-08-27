@@ -7,7 +7,7 @@
 #include "Page.h"
 #include "demo.h"
 
-#define DEFAULT_DEMO_STATE  (DEMO_FIRE | DEMO_METABALLS | DEMO_ROTOZOOM | DEMO_DEFORM)
+#define DEFAULT_DEMO_STATE  (DEMO_FIRE | DEMO_METABALLS | DEMO_DEFORM)
 #define DEMO_TIMEOUT        pdMS_TO_TICKS(10000)
 
 typedef struct demo_task_params {

@@ -100,7 +100,7 @@ void Fire::renderFrame() {
 
     bsp_display_unlock();
 
-    ESP_LOGI("fire", "render frame done.\n");
+    ESP_LOGD("fire", "render frame done.\n");
 }
 
 Fire::~Fire() {

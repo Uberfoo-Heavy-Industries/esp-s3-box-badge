@@ -17,7 +17,7 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     state = PersistenceService::getInstance()->getStateBits("demos", DEFAULT_DEMO_STATE);
 
     lock = xSemaphoreCreateMutex();
-    ESP_LOGI("MainPage", "state: %lx", state);
+    ESP_LOGI("MainPage::MainPage", "state: %lx", state);
 
     buf = (lv_color_t *)heap_caps_malloc(LV_CANVAS_BUF_SIZE_TRUE_COLOR(BSP_LCD_H_RES, BSP_LCD_V_RES / 2), MALLOC_CAP_DEFAULT);
 
@@ -121,31 +121,25 @@ void MainPage::demo_task(void *obj) {
 
     MainPage *page = MainPage::getInstance();
     while (true) {
-        xSemaphoreTake(page->lock, portMAX_DELAY);
-        printf("RENDER1\n");
+        ESP_LOGD("MainPage::demo_task", "render frame");
         if (page->currentDemo) {
             page->currentDemo->renderFrame();
         }
-        xSemaphoreGive(page->lock);
-        vPortYield();
     }
-    // printf("RENDER OUT\n");
-    // ESP_LOGI("MainPage", "giving semaphore");
-    // vTaskDelete(NULL);
 }
 
 void MainPage::load_task(void *obj) {
     bsp_display_lock(0);
     MainPage *page = MainPage::getInstance();
+    ESP_LOGI("MainPage::load_task", "demo_task got lock");
     // xSemaphoreTake(page->lock, portMAX_DELAY);
-    ESP_LOGI("MainPage", "demo_task got semaphore");
     vTaskDelete(page->task_handle);
     // page->run = false;
     page->getNextIndex();
-    ESP_LOGI("MainPage", "demo_task loading...");
+    ESP_LOGI("MainPage::load_task", "demo_task loading...");
     page->loadDemo();
     if (page->currentDemo != nullptr) {
-        ESP_LOGI("MainPage", "starting task");
+        ESP_LOGI("MainPage::load_task", "starting task");
         page->run = true;
         xTaskCreate(demo_task, "demo", 1024 * 4, page, tskIDLE_PRIORITY + 1, &page->task_handle);
     } else {
@@ -157,7 +151,7 @@ void MainPage::load_task(void *obj) {
 
 void MainPage::demo_timer_cb(TimerHandle_t handle) {
     MainPage *page = MainPage::getInstance();
-    ESP_LOGI("MainPage", "loading next demo");
+    ESP_LOGI("MainPage::demo_timer_cb", "loading next demo");
     xTaskCreate(load_task, "load", 1024 * 4, page, tskIDLE_PRIORITY + 1, &page->task_handle2);
 }
 
@@ -165,7 +159,7 @@ void MainPage::getNextIndex() {
     ++index %= DEMO_COUNT;
     int i = 0;
     while (!((1 << index) & state) && i < DEMO_COUNT) {
-        ESP_LOGI("MainPage", "index = %i, state = %lx", index, state);
+        ESP_LOGI("MainPage::getNextIndex", "index = %i, state = %lx", index, state);
         ++index %= DEMO_COUNT;
         i++;
     }
@@ -176,25 +170,22 @@ void MainPage::getNextIndex() {
 
 void MainPage::loadDemo() {
     if (currentDemo != nullptr) {
-        ESP_LOGI("MainPage", "freeing demo...");
-        // currentDemo->~Demo();
-        // heap_caps_free(demoBuf);
+        ESP_LOGI("MainPage::loadDemo", "freeing demo");
+        delete currentDemo;
     }
 
-    ESP_LOGI("MainPage", "\tDescription\tInternal\tSPIRAM");
-    printf("BAH1\n");
-    ESP_LOGI("MainPage", "Current Free Memory\t%d\t\t%d",
+    ESP_LOGI("MainPage::loadDemo", "\tDescription\tInternal\tSPIRAM");
+    ESP_LOGI("MainPage::loadDemo", "Current Free Memory\t%d\t\t%d",
                 heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
                 heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-    ESP_LOGI("MainPage", "Min. Ever Free Size\t%d\t\t%d",
+    ESP_LOGI("MainPage::loadDemo", "Min. Ever Free Size\t%d\t\t%d",
                 heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL),
                 heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM));
-    ESP_LOGI("MainPage", "Largest Block Size\t%d\t\t%d",
+    ESP_LOGI("MainPage::loadDemo", "Largest Block Size\t%d\t\t%d",
                 heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL),
                 heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM));
 
-    ESP_LOGI("MainPage", "loading demo #%i", index);
-    printf("BAH\n");
+    ESP_LOGI("MainPage::loadDemo", "loading demo #%i", index);
     switch (index) {
         case 0:
             // demoBuf = (char *)heap_caps_malloc(sizeof(Fire), MALLOC_CAP_SPIRAM);
@@ -220,7 +211,7 @@ void MainPage::loadDemo() {
             //     ESP_LOGE("MainPage", "Could not allocate Rotozoom demo");
             //     esp_restart();
             // }
-            currentDemo = new Rotozoom(canvas, params.width, params.height);
+            currentDemo = new Deform(canvas, params.width, params.height);
             break;
             
         case 3:
@@ -229,12 +220,12 @@ void MainPage::loadDemo() {
             //     ESP_LOGE("MainPage", "Could not allocate Deform demo");
             //     esp_restart();
             // }
-            currentDemo = new Deform(canvas, params.width, params.height);
+            currentDemo = new Rotozoom(canvas, params.width, params.height);
             break;
 
         default:
             currentDemo = nullptr;  
     }
 
-    ESP_LOGI("MainPage", "demo loaded...");
+    ESP_LOGI("MainPage::loadDemo", "demo loaded...");
 }

@@ -84,6 +84,8 @@ void Plasma::renderFrame()
         }
     }
 
+    bsp_display_lock(0);
+
     for (uint16_t y = 0; y < height; y += PIXEL_SIZE) {
         for (uint16_t x = 0; x < width; x += PIXEL_SIZE) {
             /* Get a color for pixel from the plasma buffer. */
@@ -100,4 +102,7 @@ void Plasma::renderFrame()
             }
         }
     }
+
+    bsp_display_unlock();
+    
 }

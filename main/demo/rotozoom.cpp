@@ -60,6 +60,8 @@ void Rotozoom::renderFrame() {
     c = coslut[angle];
     z = s * 1.2;
 
+    bsp_display_lock(0);
+
     for (uint16_t x = 0; x < width; x = x + PIXEL_SIZE) {
         for (uint16_t y = 0; y < height; y = y + PIXEL_SIZE) {
 
@@ -84,5 +86,8 @@ void Rotozoom::renderFrame() {
             }
         }
     }
+
+    bsp_display_unlock();
+
     angle = (angle + SPEED) % 360;
 }

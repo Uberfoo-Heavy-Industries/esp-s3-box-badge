@@ -71,6 +71,8 @@ Deform::~Deform() {
 
 void Deform::renderFrame()
 {
+    bsp_display_lock(0);
+
     int8_t *ptr = lut;
     for (uint16_t y = 0; y < height; y += PIXEL_SIZE) {
         for (uint16_t x = 0; x < width; x += PIXEL_SIZE) {
@@ -96,4 +98,7 @@ void Deform::renderFrame()
         }
     }
     frame = frame + SPEED;
+
+    bsp_display_unlock();
+    
 }
