@@ -65,13 +65,14 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     lv_style_set_text_color(&label2_style, lv_color_black());
     lv_style_set_text_font(&label2_style, &lv_font_montserrat_28);
 
-    lv_obj_t *label2 = lv_label_create(canvas);
-    lv_obj_add_style(label2, &label2_style, LV_PART_MAIN);
-    lv_obj_set_width(label2, BSP_LCD_H_RES);
-    lv_label_set_long_mode(label2, LV_LABEL_LONG_SCROLL_CIRCULAR);     /*Circular scroll*/
-    lv_label_set_text(label2, "UBERFOO HEAVY INDUSTRIES");
-    lv_obj_align_to(label2, canvas, LV_ALIGN_TOP_MID, 0, 40);
+    // lv_obj_t *label2 = lv_label_create(canvas);
+    // lv_obj_add_style(label2, &label2_style, LV_PART_MAIN);
+    // lv_obj_set_width(label2, BSP_LCD_H_RES);
+    // lv_label_set_long_mode(label2, LV_LABEL_LONG_SCROLL_CIRCULAR);     /*Circular scroll*/
+    // lv_label_set_text(label2, "UBERFOO HEAVY INDUSTRIES");
+    // lv_obj_align_to(label2, canvas, LV_ALIGN_TOP_MID, 0, 40);
 
+    currentDemo = nullptr;
     if (state != 0) loadDemo();
 
     timer_handle = xTimerCreate("demo_timer", DEMO_TIMEOUT, pdTRUE, nullptr, demo_timer_cb);
@@ -88,7 +89,7 @@ void MainPage::show() {
     state = PersistenceService::getInstance()->getStateBits("demos", DEFAULT_DEMO_STATE);
 
     if (task_handle == nullptr) {
-        xTaskCreate(demo_task, "demo", 1024 * 8, this, tskIDLE_PRIORITY + 1, &task_handle);
+        xTaskCreate(demo_task, "demo", 1024 * 4, this, tskIDLE_PRIORITY + 1, &task_handle);
     } else {
         vTaskResume(task_handle);
     }
@@ -118,33 +119,46 @@ void MainPage::menu_btn_event_cb(lv_event_t *e) {
 
 void MainPage::demo_task(void *obj) {
 
-    MainPage *page = (MainPage *)obj;
-    while (page->run) {
+    MainPage *page = MainPage::getInstance();
+    while (true) {
+        xSemaphoreTake(page->lock, portMAX_DELAY);
+        printf("RENDER1\n");
         if (page->currentDemo) {
-            bsp_display_lock(0);
             page->currentDemo->renderFrame();
-            bsp_display_unlock();
         }
+        xSemaphoreGive(page->lock);
+        vPortYield();
     }
-    ESP_LOGI("MainPage", "giving semaphore");
-    xSemaphoreGive(page->lock);
+    // printf("RENDER OUT\n");
+    // ESP_LOGI("MainPage", "giving semaphore");
+    // vTaskDelete(NULL);
+}
+
+void MainPage::load_task(void *obj) {
+    bsp_display_lock(0);
+    MainPage *page = MainPage::getInstance();
+    // xSemaphoreTake(page->lock, portMAX_DELAY);
+    ESP_LOGI("MainPage", "demo_task got semaphore");
+    vTaskDelete(page->task_handle);
+    // page->run = false;
+    page->getNextIndex();
+    ESP_LOGI("MainPage", "demo_task loading...");
+    page->loadDemo();
+    if (page->currentDemo != nullptr) {
+        ESP_LOGI("MainPage", "starting task");
+        page->run = true;
+        xTaskCreate(demo_task, "demo", 1024 * 4, page, tskIDLE_PRIORITY + 1, &page->task_handle);
+    } else {
+    }
+    // xSemaphoreGive(page->lock);
+    bsp_display_unlock();
     vTaskDelete(NULL);
 }
 
 void MainPage::demo_timer_cb(TimerHandle_t handle) {
     MainPage *page = MainPage::getInstance();
-    page->run = false;
-    xSemaphoreTake(page->lock, portMAX_DELAY);
     ESP_LOGI("MainPage", "loading next demo");
-    page->getNextIndex();
-    page->loadDemo();
-    if (page->currentDemo) {
-        ESP_LOGI("MainPage", "starting task");
-        page->run = true;
-        xTaskCreate(demo_task, "demo", 1024 * 8, page, tskIDLE_PRIORITY + 1, &page->task_handle);
-    } else {
-        xSemaphoreGive(page->lock);
-    }
+    xTaskCreate(load_task, "load", 1024 * 4, page, tskIDLE_PRIORITY + 1, &page->task_handle2);
 }
 
 void MainPage::getNextIndex() {
@@ -163,11 +177,12 @@ void MainPage::getNextIndex() {
 void MainPage::loadDemo() {
     if (currentDemo != nullptr) {
         ESP_LOGI("MainPage", "freeing demo...");
-        currentDemo->~Demo();
-        heap_caps_free(demoBuf);
+        // currentDemo->~Demo();
+        // heap_caps_free(demoBuf);
     }
 
     ESP_LOGI("MainPage", "\tDescription\tInternal\tSPIRAM");
+    printf("BAH1\n");
     ESP_LOGI("MainPage", "Current Free Memory\t%d\t\t%d",
                 heap_caps_get_free_size(MALLOC_CAP_INTERNAL),
                 heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
@@ -179,24 +194,41 @@ void MainPage::loadDemo() {
                 heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM));
 
     ESP_LOGI("MainPage", "loading demo #%i", index);
+    printf("BAH\n");
     switch (index) {
         case 0:
-            demoBuf = (char *)heap_caps_malloc(sizeof(Fire), MALLOC_CAP_SPIRAM);
+            // demoBuf = (char *)heap_caps_malloc(sizeof(Fire), MALLOC_CAP_SPIRAM);
+            // if (!demoBuf) {
+            //     ESP_LOGE("MainPage", "Could not allocate Fire demo");
+            //     esp_restart();
+            // }
             currentDemo = new Fire(canvas, params.width, params.height);
             break;
             
         case 1:
-            demoBuf = (char *)heap_caps_malloc(sizeof(Metaballs), MALLOC_CAP_SPIRAM);
+            // demoBuf = (char *)heap_caps_malloc(sizeof(Metaballs), MALLOC_CAP_SPIRAM);
+            // if (!demoBuf) {
+            //     ESP_LOGE("MainPage", "Could not allocate Metaballs demo");
+            //     esp_restart();
+            // }
             currentDemo = new Metaballs(canvas, params.width, params.height);
             break;
             
         case 2:
-            demoBuf = (char *)heap_caps_malloc(sizeof(Rotozoom), MALLOC_CAP_SPIRAM);
+            // demoBuf = (char *)heap_caps_malloc(sizeof(Rotozoom), MALLOC_CAP_SPIRAM);
+            // if (!demoBuf) {
+            //     ESP_LOGE("MainPage", "Could not allocate Rotozoom demo");
+            //     esp_restart();
+            // }
             currentDemo = new Rotozoom(canvas, params.width, params.height);
             break;
             
         case 3:
-            demoBuf = (char *)heap_caps_malloc(sizeof(Deform), MALLOC_CAP_SPIRAM);
+            // demoBuf = (char *)heap_caps_malloc(sizeof(Deform), MALLOC_CAP_SPIRAM);
+            // if (!demoBuf) {
+            //     ESP_LOGE("MainPage", "Could not allocate Deform demo");
+            //     esp_restart();
+            // }
             currentDemo = new Deform(canvas, params.width, params.height);
             break;
 

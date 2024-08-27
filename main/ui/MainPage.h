@@ -21,6 +21,7 @@ class MainPage : public Page {
 public:
     static MainPage* getInstance(lv_obj_t *parent = nullptr);
     static void demo_task(void *obj);
+    static void load_task(void *obj);
     static void demo_timer_cb(TimerHandle_t handle);
     void show() override;
     void hide() override;
@@ -41,6 +42,7 @@ private:
     uint32_t state;
     demo_task_params params;
     TaskHandle_t task_handle = nullptr;
+    TaskHandle_t task_handle2 = nullptr;
     TimerHandle_t timer_handle = nullptr;
     lv_color_t *buf;
     lv_obj_t *canvas;

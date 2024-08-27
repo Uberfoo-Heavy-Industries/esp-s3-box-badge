@@ -87,6 +87,8 @@ void Fire::renderFrame() {
                 * 32) / 129;
         }
     }
+    
+    bsp_display_lock(0);
 
     //set the drawing buffer to the fire buffer, using the palette colors
     for(int y = 0; y < height; y++) {
@@ -95,11 +97,14 @@ void Fire::renderFrame() {
             lv_canvas_set_px(canvas, x, y, palette[*(fire + (y * width) + x)]);
         }
     }
-    ESP_LOGD("fire", "render frame done.\n");
+
+    bsp_display_unlock();
+
+    ESP_LOGI("fire", "render frame done.\n");
 }
 
 Fire::~Fire() {
     ESP_LOGI("Fire", "deconstructor");
-    heap_caps_free(fire);
+    // heap_caps_free(fire);
     ESP_LOGI("Fire", "decon done");
 }
