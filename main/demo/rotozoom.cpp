@@ -31,6 +31,7 @@ SPDX-License-Identifier: MIT-0
 #include "bsp/esp-bsp.h"
 #include "esp_heap_caps.h"
 #include "esp_log.h"
+#include "esp_random.h"
 
 #include "rotozoom.h"
 
@@ -47,6 +48,7 @@ Rotozoom::Rotozoom(lv_obj_t * canvas, uint16_t width, uint16_t height) : Demo(ca
         coslut[i] = cos(i * M_PI / 180);
     }
 
+    angle = esp_random() * ((double)360 / (double)UINT32_MAX);
 }
 
 Rotozoom::~Rotozoom() {

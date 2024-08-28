@@ -121,31 +121,24 @@ void MainPage::demo_task(void *obj) {
 
     MainPage *page = MainPage::getInstance();
     while (true) {
+        xSemaphoreTake(page->lock, portMAX_DELAY);
         ESP_LOGD("MainPage::demo_task", "render frame");
         if (page->currentDemo) {
             page->currentDemo->renderFrame();
         }
+        xSemaphoreGive(page->lock);
     }
 }
 
 void MainPage::load_task(void *obj) {
-    bsp_display_lock(0);
     MainPage *page = MainPage::getInstance();
-    ESP_LOGI("MainPage::load_task", "demo_task got lock");
-    // xSemaphoreTake(page->lock, portMAX_DELAY);
-    vTaskDelete(page->task_handle);
-    // page->run = false;
+    ESP_LOGI("MainPage::load_task", "getting lock");
+    xSemaphoreTake(page->lock, portMAX_DELAY);
+    ESP_LOGI("MainPage::load_task", "got lock");
     page->getNextIndex();
     ESP_LOGI("MainPage::load_task", "demo_task loading...");
     page->loadDemo();
-    if (page->currentDemo != nullptr) {
-        ESP_LOGI("MainPage::load_task", "starting task");
-        page->run = true;
-        xTaskCreate(demo_task, "demo", 1024 * 4, page, tskIDLE_PRIORITY + 1, &page->task_handle);
-    } else {
-    }
-    // xSemaphoreGive(page->lock);
-    bsp_display_unlock();
+    xSemaphoreGive(page->lock);
     vTaskDelete(NULL);
 }
 

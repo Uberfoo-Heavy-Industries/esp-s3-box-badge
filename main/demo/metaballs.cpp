@@ -29,6 +29,7 @@ SPDX-License-Identifier: MIT-0
 #include <stdlib.h>
 #include "bsp/esp-bsp.h"
 #include "esp_log.h"
+#include "esp_random.h"
 
 #include "metaballs.h"
 
@@ -57,6 +58,7 @@ lv_draw_rect_dsc_t metaballs_rect_dsc;
 
 Metaballs::Metaballs(lv_obj_t *canvas, uint16_t width, uint16_t height) : Demo(canvas, width, height)
 {
+    srand(esp_random());
     /* Set up imaginary balls inside screen coordinates. */
     for (int16_t i = 0; i < NUM_BALLS; i++) {
         balls[i].radius = (rand() % MAX_RADIUS) + MIN_RADIUS;

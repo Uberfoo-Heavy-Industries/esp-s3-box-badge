@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include "bsp/esp-bsp.h"
@@ -6,6 +7,7 @@
 #include "esp_system.h"
 #include "esp_heap_caps.h"
 #include "esp_log.h"
+#include "esp_random.h"
 #include "lvgl.h"
 #include "touch_element/touch_button.h"
 #include "iot_button.h"
@@ -34,6 +36,11 @@ void button_cb(void *button_handle, void *usr_data) {
 extern "C" int app_main()
 {
     ESP_LOGD("main", "startup...");
+
+    unsigned int seed = esp_random();
+    srand(seed);
+    
+    ESP_LOGI("main", "random seed: %x", seed);
 
     /* Initialize I2C (for touch and audio) */
     bsp_i2c_init();

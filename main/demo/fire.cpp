@@ -37,6 +37,7 @@ Fire Effect based on https://lodev.org/cgtutor/fire.html
 
 #include "bsp/esp-bsp.h"
 #include "esp_log.h"
+#include "esp_random.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_pthread.h"
@@ -46,6 +47,8 @@ Fire Effect based on https://lodev.org/cgtutor/fire.html
 
 Fire::Fire(lv_obj_t *canvas, uint16_t width, uint16_t height) : Demo(canvas, width, height)
 {
+    srand(esp_random());
+    
     this->canvas = canvas;
     ESP_LOGD("fire", "dimensions: (%d, %d)", width, height);
     fire = (uint8_t *)heap_caps_malloc(width * height * 2, MALLOC_CAP_SPIRAM);
@@ -105,6 +108,5 @@ void Fire::renderFrame() {
 
 Fire::~Fire() {
     ESP_LOGI("Fire", "deconstructor");
-    // heap_caps_free(fire);
-    ESP_LOGI("Fire", "decon done");
+    heap_caps_free(fire);
 }
