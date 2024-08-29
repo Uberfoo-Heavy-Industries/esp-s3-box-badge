@@ -76,7 +76,7 @@ void Fire::renderFrame() {
     
     //randomize the bottom row of the fire buffer
     for(int x = 0; x < width; x++) fire[((height - 1) * width) + x] = abs(32768 + rand()) % 256;
-    ESP_LOGD("fire", "randomize row done.");
+    ESP_LOGD("Fire::renderFrame", "randomize row done.");
     
     //do the fire calculations for every pixel, from top to bottom
     for(int y = 0; y < height - 1; y++) {
@@ -103,10 +103,10 @@ void Fire::renderFrame() {
 
     bsp_display_unlock();
 
-    ESP_LOGD("fire", "render frame done.\n");
+    ESP_LOGD("Fire::renderFrame", "render frame done.\n");
 }
 
 Fire::~Fire() {
-    ESP_LOGI("Fire", "deconstructor");
+    ESP_LOGD("Fire::~Fire", "deconstructor");
     heap_caps_free(fire);
 }

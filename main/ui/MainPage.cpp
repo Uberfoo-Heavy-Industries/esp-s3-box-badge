@@ -17,6 +17,7 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     state = PersistenceService::getInstance()->getStateBits("demos", DEFAULT_DEMO_STATE);
 
     lock = xSemaphoreCreateMutex();
+
     ESP_LOGI("MainPage::MainPage", "state: %lx", state);
 
     buf = (lv_color_t *)heap_caps_malloc(LV_CANVAS_BUF_SIZE_TRUE_COLOR(BSP_LCD_H_RES, BSP_LCD_V_RES / 2), MALLOC_CAP_DEFAULT);
@@ -89,7 +90,7 @@ void MainPage::show() {
     state = PersistenceService::getInstance()->getStateBits("demos", DEFAULT_DEMO_STATE);
 
     if (task_handle == nullptr) {
-        xTaskCreate(demo_task, "demo", 1024 * 4, this, tskIDLE_PRIORITY + 1, &task_handle);
+        xTaskCreate(demo_task, "demo", 1024 * 2, this, tskIDLE_PRIORITY + 1, &task_handle);
     } else {
         vTaskResume(task_handle);
     }
@@ -127,6 +128,7 @@ void MainPage::demo_task(void *obj) {
             page->currentDemo->renderFrame();
         }
         xSemaphoreGive(page->lock);
+        vPortYield();
     }
 }
 
@@ -136,7 +138,7 @@ void MainPage::load_task(void *obj) {
     xSemaphoreTake(page->lock, portMAX_DELAY);
     ESP_LOGI("MainPage::load_task", "got lock");
     page->getNextIndex();
-    ESP_LOGI("MainPage::load_task", "demo_task loading...");
+    ESP_LOGI("MainPage::load_task", "loading demo");
     page->loadDemo();
     xSemaphoreGive(page->lock);
     vTaskDelete(NULL);
@@ -145,7 +147,10 @@ void MainPage::load_task(void *obj) {
 void MainPage::demo_timer_cb(TimerHandle_t handle) {
     MainPage *page = MainPage::getInstance();
     ESP_LOGI("MainPage::demo_timer_cb", "loading next demo");
-    xTaskCreate(load_task, "load", 1024 * 4, page, tskIDLE_PRIORITY + 1, &page->task_handle2);
+    BaseType_t ret = xTaskCreate(load_task, "load", 1024 * 3, page, tskIDLE_PRIORITY + 2, &page->task_handle2);
+    if (ret != pdPASS) {
+        ESP_LOGE("MainPage::demo_timer_cb", "Error launching demp load task (%i)", ret);
+    }
 }
 
 void MainPage::getNextIndex() {
@@ -220,5 +225,5 @@ void MainPage::loadDemo() {
             currentDemo = nullptr;  
     }
 
-    ESP_LOGI("MainPage::loadDemo", "demo loaded...");
+    ESP_LOGI("MainPage::loadDemo", "demo loaded");
 }
