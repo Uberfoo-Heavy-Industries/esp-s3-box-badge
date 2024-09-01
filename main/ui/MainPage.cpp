@@ -147,9 +147,9 @@ void MainPage::load_task(void *obj) {
 void MainPage::demo_timer_cb(TimerHandle_t handle) {
     MainPage *page = MainPage::getInstance();
     ESP_LOGI("MainPage::demo_timer_cb", "loading next demo");
-    BaseType_t ret = xTaskCreate(load_task, "load", 1024 * 3, page, tskIDLE_PRIORITY + 2, &page->task_handle2);
+    BaseType_t ret = xTaskCreate(load_task, "load", 512 * 5, page, tskIDLE_PRIORITY + 2, &page->task_handle2);
     if (ret != pdPASS) {
-        ESP_LOGE("MainPage::demo_timer_cb", "Error launching demp load task (%i)", ret);
+        ESP_LOGE("MainPage::demo_timer_cb", "Error launching demo load task (%i)", ret);
     }
 }
 
@@ -186,40 +186,23 @@ void MainPage::loadDemo() {
     ESP_LOGI("MainPage::loadDemo", "loading demo #%i", index);
     switch (index) {
         case 0:
-            // demoBuf = (char *)heap_caps_malloc(sizeof(Fire), MALLOC_CAP_SPIRAM);
-            // if (!demoBuf) {
-            //     ESP_LOGE("MainPage", "Could not allocate Fire demo");
-            //     esp_restart();
-            // }
             currentDemo = new Fire(canvas, params.width, params.height);
             break;
             
         case 1:
-            // demoBuf = (char *)heap_caps_malloc(sizeof(Metaballs), MALLOC_CAP_SPIRAM);
-            // if (!demoBuf) {
-            //     ESP_LOGE("MainPage", "Could not allocate Metaballs demo");
-            //     esp_restart();
-            // }
             currentDemo = new Metaballs(canvas, params.width, params.height);
             break;
             
         case 2:
-            // demoBuf = (char *)heap_caps_malloc(sizeof(Rotozoom), MALLOC_CAP_SPIRAM);
-            // if (!demoBuf) {
-            //     ESP_LOGE("MainPage", "Could not allocate Rotozoom demo");
-            //     esp_restart();
-            // }
             currentDemo = new Deform(canvas, params.width, params.height);
             break;
             
         case 3:
-            // demoBuf = (char *)heap_caps_malloc(sizeof(Deform), MALLOC_CAP_SPIRAM);
-            // if (!demoBuf) {
-            //     ESP_LOGE("MainPage", "Could not allocate Deform demo");
-            //     esp_restart();
-            // }
             currentDemo = new Rotozoom(canvas, params.width, params.height);
             break;
+
+        case 4:
+            currentDemo = new Plasma(canvas, params.width, params.height);
 
         default:
             currentDemo = nullptr;  

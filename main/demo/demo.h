@@ -8,7 +8,8 @@
 #define DEMO_METABALLS  (1 << 1)
 #define DEMO_DEFORM     (1 << 2)
 #define DEMO_ROTOZOOM   (1 << 3)
-#define DEMO_COUNT      4
+#define DEMO_PLASMA     (1 << 4)
+#define DEMO_COUNT      5
 
 class Demo {
     protected:
