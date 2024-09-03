@@ -14,11 +14,11 @@
 MainPage* MainPage::instance = nullptr;
 
 MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
-    state = PersistenceService::getInstance()->getStateBits("demos", DEFAULT_DEMO_STATE);
+    ESP_LOGI("MainPage::MainPage", "construct");
 
     lock = xSemaphoreCreateMutex();
 
-    ESP_LOGI("MainPage::MainPage", "state: %08" PRIx32, state);
+    state = PersistenceService::getInstance()->getStateBits("demo_bits", DEFAULT_DEMO_STATE);
 
     buf = (lv_color_t *)heap_caps_malloc(LV_CANVAS_BUF_SIZE_TRUE_COLOR(BSP_LCD_H_RES, BSP_LCD_V_RES / 2), MALLOC_CAP_DEFAULT);
 
@@ -73,10 +73,13 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     // lv_label_set_text(label2, "UBERFOO HEAVY INDUSTRIES");
     // lv_obj_align_to(label2, canvas, LV_ALIGN_TOP_MID, 0, 40);
 
-    currentDemo = nullptr;
-    if (state != 0) loadDemo();
-
+    xTaskCreate(demo_task, "demo", 1024 * 4, this, tskIDLE_PRIORITY, &task_handle);
+    vTaskSuspend(task_handle);
+    vTaskPrioritySet(task_handle, tskIDLE_PRIORITY + 1);
+    
     timer_handle = xTimerCreate("demo_timer", DEMO_TIMEOUT, pdTRUE, nullptr, demo_timer_cb);
+
+    ESP_LOGI("MainPage::MainPage", "done");
 }
 
 MainPage* MainPage::getInstance(lv_obj_t *parent) {
@@ -89,30 +92,43 @@ MainPage* MainPage::getInstance(lv_obj_t *parent) {
 void MainPage::show() {
     state = PersistenceService::getInstance()->getStateBits("demo_bits", DEFAULT_DEMO_STATE);
 
-    if (task_handle == nullptr) {
-        if (state != 0) {
-            xTaskCreate(demo_task, "demo", 1024 * 8, this, tskIDLE_PRIORITY + 1, &task_handle);
-            xTimerStart(timer_handle, portMAX_DELAY);
+    xSemaphoreTake(lock, portMAX_DELAY);
+    ESP_LOGI("MainPage::show", "state is %08" PRIx32, state);
+
+    if (state == 0) {
+        if (currentDemo != nullptr) {
+            delete currentDemo;
+            currentDemo = nullptr;
         }
-    } else if (state == 0) {
         xTimerStop(timer_handle, portMAX_DELAY);
         vTaskSuspend(task_handle);
     } else {
+        getNextIndex();
+        loadDemo();
         vTaskResume(task_handle);
         xTimerStart(timer_handle, portMAX_DELAY);
     }
-    
+
+    xSemaphoreGive(lock);
 
     // Update text
     lv_label_set_text(label, PersistenceService::getInstance()->getName());
     lv_obj_align_to(label, top_pane, LV_ALIGN_CENTER, 0, 0);
 
     Page::show();
+
+    ESP_LOGI("MainPage::show", "done");
 }
 
 void MainPage::hide() {
+
+    xSemaphoreTake(lock, portMAX_DELAY);
+
     vTaskSuspend(task_handle);
     xTimerStop(timer_handle, portMAX_DELAY);
+
+    xSemaphoreGive(lock);
+    
     Page::hide();
 }
 
@@ -130,8 +146,7 @@ void MainPage::demo_task(void *obj) {
     MainPage *page = MainPage::getInstance();
     while (true) {
         xSemaphoreTake(page->lock, portMAX_DELAY);
-        ESP_LOGD("MainPage::demo_task", "render frame");
-        if (page->currentDemo) {
+        if (page->currentDemo != nullptr) {
             page->currentDemo->renderFrame();
         }
         xSemaphoreGive(page->lock);
@@ -144,10 +159,19 @@ void MainPage::load_task(void *obj) {
     ESP_LOGI("MainPage::load_task", "getting lock");
     xSemaphoreTake(page->lock, portMAX_DELAY);
     ESP_LOGI("MainPage::load_task", "got lock");
+    
+    auto current = page->index;
     page->getNextIndex();
-    ESP_LOGI("MainPage::load_task", "loading demo");
-    page->loadDemo();
+    
+    // // Load the next demo only if the index changed
+    if (page->index != current) {
+        ESP_LOGI("MainPage::load_task", "loading demo");
+        page->loadDemo();
+    }
+    
     xSemaphoreGive(page->lock);
+    ESP_LOGI("MainPage::load_task", "gave lock");
+
     vTaskDelete(NULL);
 }
 

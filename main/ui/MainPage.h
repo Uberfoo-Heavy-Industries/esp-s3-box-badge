@@ -36,7 +36,7 @@ private:
     void getNextIndex();
     void loadDemo();
     
-    int index = 0;
+    int index = -1;
     bool switch_flag = false;
     bool run = true;
     uint32_t state;

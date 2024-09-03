@@ -73,8 +73,10 @@ void DemoSettingsPage::show() {
 
     if (bitmap == 0) {
         lv_obj_clear_state(enable_switch, LV_STATE_CHECKED);
+        lv_obj_add_flag(checkbox_container, LV_OBJ_FLAG_HIDDEN);
     } else {
         lv_obj_add_state(enable_switch, LV_STATE_CHECKED);
+        lv_obj_clear_flag(checkbox_container, LV_OBJ_FLAG_HIDDEN);
 
         if (bitmap & DEMO_FIRE) {lv_obj_add_state(checkbox1, LV_STATE_CHECKED);} 
         else {lv_obj_clear_state(checkbox1, LV_STATE_CHECKED);}

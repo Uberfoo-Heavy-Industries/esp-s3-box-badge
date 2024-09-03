@@ -26,11 +26,9 @@
 #include "MessageService.h"
 
 void button_cb(void *button_handle, void *usr_data) {
-    bsp_display_lock(0);
-    ESP_LOGD("button", "Button event.");
+    ESP_LOGI("button", "Button event.");
     Page::hideAll();
     MenuPage::getInstance()->show();
-    bsp_display_unlock();
 }
 
 extern "C" int app_main()
@@ -85,11 +83,15 @@ extern "C" int app_main()
     DemoSettingsPage::getInstance(scr);
     MessageLogPage::getInstance(scr);
 
+    bsp_display_unlock();
+    
+    // PersistenceService::getInstance()->setStateBits("demo_bits", DEFAULT_DEMO_STATE);
+    uint32_t state = PersistenceService::getInstance()->getStateBits("demo_bits", DEFAULT_DEMO_STATE);
+    ESP_LOGI("main", "State %08" PRIx32, state);
+
     // Load the main page initially
     MainPage::getInstance()->show();
 
-    bsp_display_unlock();
-    
     // ESPNowService::getInstance();
     // MessageService::getInstance();
 

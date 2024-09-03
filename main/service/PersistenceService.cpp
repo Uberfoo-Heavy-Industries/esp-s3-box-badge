@@ -108,7 +108,7 @@ bool PersistenceService::setStateBits(const char *key, uint32_t value) {
                 ESP_LOGE("PersistenceService::setStateBits", "Failed to commit bitmap for %s! value: %08" PRIx32, key, value);
                 return false;
             }
-            ESP_LOGI("PersistenceService::setStateBits", "Commit bitmap successfulfor %s! value:%08" PRIx32, key, value);
+            ESP_LOGI("PersistenceService::setStateBits", "Commit bitmap successful for %s! value:%08" PRIx32, key, value);
 
             // Close NVS handle
             nvs_close(handle);
