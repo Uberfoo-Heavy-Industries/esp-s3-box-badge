@@ -18,7 +18,7 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
 
     lock = xSemaphoreCreateMutex();
 
-    ESP_LOGI("MainPage::MainPage", "state: %lx", state);
+    ESP_LOGI("MainPage::MainPage", "state: %08" PRIx32, state);
 
     buf = (lv_color_t *)heap_caps_malloc(LV_CANVAS_BUF_SIZE_TRUE_COLOR(BSP_LCD_H_RES, BSP_LCD_V_RES / 2), MALLOC_CAP_DEFAULT);
 
@@ -87,14 +87,21 @@ MainPage* MainPage::getInstance(lv_obj_t *parent) {
 }
 
 void MainPage::show() {
-    state = PersistenceService::getInstance()->getStateBits("demos", DEFAULT_DEMO_STATE);
+    state = PersistenceService::getInstance()->getStateBits("demo_bits", DEFAULT_DEMO_STATE);
 
     if (task_handle == nullptr) {
-        xTaskCreate(demo_task, "demo", 1024 * 2, this, tskIDLE_PRIORITY + 1, &task_handle);
+        if (state != 0) {
+            xTaskCreate(demo_task, "demo", 1024 * 8, this, tskIDLE_PRIORITY + 1, &task_handle);
+            xTimerStart(timer_handle, portMAX_DELAY);
+        }
+    } else if (state == 0) {
+        xTimerStop(timer_handle, portMAX_DELAY);
+        vTaskSuspend(task_handle);
     } else {
         vTaskResume(task_handle);
+        xTimerStart(timer_handle, portMAX_DELAY);
     }
-    xTimerStart(timer_handle, portMAX_DELAY);
+    
 
     // Update text
     lv_label_set_text(label, PersistenceService::getInstance()->getName());
@@ -157,7 +164,7 @@ void MainPage::getNextIndex() {
     ++index %= DEMO_COUNT;
     int i = 0;
     while (!((1 << index) & state) && i < DEMO_COUNT) {
-        ESP_LOGI("MainPage::getNextIndex", "index = %i, state = %lx", index, state);
+        ESP_LOGI("MainPage::getNextIndex", "index = %i, state = %08" PRIx32, index, state);
         ++index %= DEMO_COUNT;
         i++;
     }
@@ -203,6 +210,7 @@ void MainPage::loadDemo() {
 
         case 4:
             currentDemo = new Plasma(canvas, params.width, params.height);
+            break;
 
         default:
             currentDemo = nullptr;  

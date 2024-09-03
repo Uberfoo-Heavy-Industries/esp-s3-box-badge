@@ -10,7 +10,7 @@ PersistenceService::PersistenceService() {
         xMutex = xSemaphoreCreateMutex();
         if (xMutex == NULL) {
             // Handle error: Mutex creation failed
-            ESP_LOGE(TAG, "Mutex creation failed!\n");
+            ESP_LOGE("PersistenceService::PersistenceService", "Mutex creation failed!");
             return;
         }
     }
@@ -21,7 +21,7 @@ PersistenceService::PersistenceService() {
             // Initialize NVS
         esp_err_t ret = nvs_flash_init();
         if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-            ESP_LOGI(TAG, "nvs init failed, erasing nvs");
+            ESP_LOGI("PersistenceService::PersistenceService", "nvs init failed, erasing nvs");
             ESP_ERROR_CHECK(nvs_flash_erase());
             ret = nvs_flash_init();
         }
@@ -31,13 +31,13 @@ PersistenceService::PersistenceService() {
         nvs_handle_t handle;
         ret = nvs_open("storage", NVS_READWRITE, &handle);
         if (ret != ESP_OK) {
-                ESP_LOGE(TAG, "Error (%s) opening NVS handle! (140)\n", esp_err_to_name(ret));
+                ESP_LOGE("PersistenceService::PersistenceService", "Error (%s) opening NVS handle!", esp_err_to_name(ret));
         } else {
             nvs_close(handle);
         }
         xSemaphoreGive(xMutex);
     } else {
-        ESP_LOGE(TAG, "Couldn't take semaphore");
+        ESP_LOGE("PersistenceService::PersistenceService", "Couldn't take semaphore!");
     }
 
 }
@@ -62,7 +62,7 @@ void PersistenceService::setName(const char *name) {
         nvs_handle_t handle;
         esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (57)\n", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(ret));
         } else {
             // Write value to NVS
             ret = nvs_set_str(handle, "name", name);
@@ -87,6 +87,42 @@ void PersistenceService::setName(const char *name) {
     }
 }
 
+bool PersistenceService::setStateBits(const char *key, uint32_t value) {
+    // Attempt to take the mutex, wait indefinitely if necessary
+    if (xSemaphoreTake(xMutex, portMAX_DELAY) == pdTRUE) {
+        nvs_handle_t handle;
+        esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(ret));
+            return false;
+        } else {
+            // Write value to NVS
+            ret = nvs_set_u32(handle, key, value);
+            if (ret != ESP_OK) {
+                ESP_LOGE(TAG, "Failed to write bitmap for %s! value: %08" PRIx32, key, value);
+                return false;
+            }
+            ESP_LOGI(TAG, "Write bitmap successful for %s! name: %08" PRIx32, key, value);
+
+            // Commit written value
+            ret = nvs_commit(handle);
+            if (ret != ESP_OK) {
+                ESP_LOGE(TAG, "Failed to commit bitmap for %s! value: %08" PRIx32, key, value);
+                return false;
+            }
+            ESP_LOGI(TAG, "Commit bitmap successfulfor %s! value:%08" PRIx32, key, value);
+
+            // Close NVS handle
+            nvs_close(handle);
+        }
+        xSemaphoreGive(xMutex);
+        return true;
+    } else {
+        ESP_LOGE(TAG, "Couldn't take semaphore");
+    }
+    return false;
+}
+
 const char *PersistenceService::getName() {
         // Attempt to take the mutex, wait indefinitely if necessary
     if (xSemaphoreTake(xMutex, portMAX_DELAY) == pdTRUE) {
@@ -104,7 +140,7 @@ const char *PersistenceService::getName() {
                     ESP_LOGD(TAG, "Value size: %d", size);
                     break;
                 case ESP_ERR_NVS_NOT_FOUND:
-                    ESP_LOGE(TAG, "The name value is not initialized yet!");
+                    ESP_LOGI(TAG, "The name value is not initialized yet!");
                     nvs_close(handle);
                     xSemaphoreGive(xMutex);
                     return DEFAULT_NAME; // Just return the default
@@ -146,15 +182,15 @@ uint32_t PersistenceService::getStateBits(const char *key, uint32_t default_val)
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "Error (%s) opening NVS handle! (89)\n", esp_err_to_name(ret));
         } else {
-            ret = nvs_get_u32(handle, "name", &value);
+            ret = nvs_get_u32(handle, key, &value);
             switch (ret) {
                 case ESP_OK:
                     break;
                 case ESP_ERR_NVS_NOT_FOUND:
                     ESP_LOGI(TAG, "The %s value is not initialized yet!", key);
                     value = default_val;
-                    nvs_set_u32(handle, key, default_val);
-                default :
+                    break;
+                default:
                     ESP_LOGE(TAG, "Error (%s) reading !\n", esp_err_to_name(ret));
             }
             nvs_close(handle);
@@ -164,7 +200,7 @@ uint32_t PersistenceService::getStateBits(const char *key, uint32_t default_val)
     } else {
         ESP_LOGE(TAG, "Couldn't take semaphore");
     }
-
+    ESP_LOGI(TAG, "return value: %08" PRIx32, value);
     return value;
 }
 
@@ -177,7 +213,7 @@ uint8_t PersistenceService::getAndIncrement(const char *key) {
         nvs_handle_t handle;
         esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (140)\n", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(ret));
         } else {
             ret = nvs_get_u8(handle, key, &value);
             switch (ret) {
@@ -188,18 +224,18 @@ uint8_t PersistenceService::getAndIncrement(const char *key) {
                     ESP_LOGI(TAG, "The %s value is not initialized yet. Setting to default.", key);
                     ret = nvs_set_u8(handle, key, 1); // set the incremented default
                     if (ret != ESP_OK) {
-                        ESP_LOGE(TAG, "Error (%s) writing default %s!\n", esp_err_to_name(ret), key);
+                        ESP_LOGE(TAG, "Error (%s) writing default %s!", esp_err_to_name(ret), key);
                     }
                     nvs_commit(handle);
                     nvs_close(handle);
                     xSemaphoreGive(xMutex);
                     return 0; // Just return the default
                 default :
-                    ESP_LOGE(TAG, "Error (%s) reading %s!\n", esp_err_to_name(ret), key);
+                    ESP_LOGE(TAG, "Error (%s) reading %s!", esp_err_to_name(ret), key);
             }
             ret = nvs_set_u8(handle, key, value + 1);
             if (ret != ESP_OK) {
-                ESP_LOGE(TAG, "Error (%s) incrementing and writing %s!\n", esp_err_to_name(ret), key);
+                ESP_LOGE(TAG, "Error (%s) incrementing and writing %s!", esp_err_to_name(ret), key);
             }
             nvs_commit(handle);
             nvs_close(handle);
@@ -229,7 +265,7 @@ void PersistenceService::persistMessage(message_pkt_t *pkt) {
         nvs_handle_t handle;
         esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (192)\n", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(ret));
         } else {
             ret = nvs_set_blob(handle, "messages", blob, sizeof(messages_blob_t)); // set the incremented default
             if (ret != ESP_OK) {
@@ -257,7 +293,7 @@ messages_blob_t *PersistenceService::getMessages() {
         nvs_handle_t handle;
         esp_err_t ret = nvs_open("storage", NVS_READWRITE, &handle);
         if (ret != ESP_OK) {
-            ESP_LOGE(TAG, "Error (%s) opening NVS handle! (220)\n", esp_err_to_name(ret));
+            ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(ret));
         } else {
             ret = nvs_get_blob(handle, "messages", value, &size);
             switch (ret) {
@@ -281,6 +317,7 @@ messages_blob_t *PersistenceService::getMessages() {
     } else {
         ESP_LOGE(TAG, "Couldn't take semaphore");
     }
+
     return value;
 }
 

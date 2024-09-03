@@ -17,6 +17,8 @@ private:
     lv_obj_t *checkbox1;
     lv_obj_t *checkbox2;
     lv_obj_t *checkbox3;
+    lv_obj_t *checkbox4;
+    lv_obj_t *checkbox5;
     lv_obj_t *checkbox_container;
     lv_obj_t *enable_switch;
     lv_obj_t *save_btn;

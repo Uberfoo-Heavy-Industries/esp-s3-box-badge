@@ -20,7 +20,7 @@ class Demo {
     public:
     Demo(lv_obj_t *canvas, uint16_t width, uint16_t height);
     virtual ~Demo() {
-        ESP_LOGI("Demo", "demo deconstructor");
+        ESP_LOGD("Demo::~Demo", "demo deconstructor called");
     };
 
     virtual void renderFrame() = 0;

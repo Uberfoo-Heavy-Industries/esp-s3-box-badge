@@ -41,6 +41,8 @@ static const uint8_t PIXEL_SIZE = 4;
 
 Plasma::Plasma(lv_obj_t * canvas, uint16_t width, uint16_t height) : Demo(canvas, width, height)
 {
+    ESP_LOGI("Plasma::Plasma", "construct: %dx%d", width, height);
+
     uint8_t *ptr = plasma = (uint8_t *)heap_caps_malloc(width * height * sizeof(uint8_t), MALLOC_CAP_SPIRAM);
     palette = (lv_color_t *)heap_caps_malloc(256 * sizeof(lv_color_t), MALLOC_CAP_SPIRAM);
     
@@ -73,6 +75,7 @@ Plasma::~Plasma() {
 
 void Plasma::renderFrame()
 {
+
     uint8_t *ptr = plasma;
     for (uint16_t y = 0; y < height; y = y + PIXEL_SIZE) {
         for (uint16_t x = 0; x < width; x = x + PIXEL_SIZE) {
@@ -86,6 +89,7 @@ void Plasma::renderFrame()
 
     bsp_display_lock(0);
 
+    ptr = plasma;
     for (uint16_t y = 0; y < height; y += PIXEL_SIZE) {
         for (uint16_t x = 0; x < width; x += PIXEL_SIZE) {
             /* Get a color for pixel from the plasma buffer. */

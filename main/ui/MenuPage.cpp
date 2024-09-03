@@ -22,25 +22,25 @@ MenuPage::MenuPage(lv_obj_t *parent) : Page(parent) {
     lv_obj_add_event_cb(btn1, options_btn_event_cb, LV_EVENT_CLICKED, btn1_option);
 
     lv_obj_t *btn2 = lv_btn_create(page);
-    lv_obj_align(btn2, LV_ALIGN_DEFAULT, 0, 30);
+    lv_obj_align(btn2, LV_ALIGN_DEFAULT, 0, 40);
     lv_obj_t *btn2_label = lv_label_create(btn2);
     lv_label_set_text(btn2_label, "Send Message");
     uint8_t* btn2_option = new uint8_t(2);
     lv_obj_add_event_cb(btn2, options_btn_event_cb, LV_EVENT_CLICKED, btn2_option);
 
     lv_obj_t *btn3 = lv_btn_create(page);
-    lv_obj_align(btn3, LV_ALIGN_DEFAULT, 0, 60);
+    lv_obj_align(btn3, LV_ALIGN_DEFAULT, 0, 80);
     lv_obj_t *btn3_label = lv_label_create(btn3);
     lv_label_set_text(btn3_label, "Messages");
     uint8_t* btn3_option = new uint8_t(3);
     lv_obj_add_event_cb(btn3, options_btn_event_cb, LV_EVENT_CLICKED, btn3_option);
 
-    // lv_obj_t *btn2 = lv_btn_create(page);
-    // lv_obj_align(btn2, LV_ALIGN_CENTER, 0, 30);
-    // lv_obj_t *btn2_label = lv_label_create(btn2);
-    // lv_label_set_text(btn2_label, "Demo Options");
-    // uint8_t* btn2_option = new uint8_t(2);
-    // lv_obj_add_event_cb(btn2, options_btn_event_cb, LV_EVENT_CLICKED, btn2_option);
+    lv_obj_t *btn4 = lv_btn_create(page);
+    lv_obj_align(btn4, LV_ALIGN_DEFAULT, 0, 120);
+    lv_obj_t *btn4_label = lv_label_create(btn4);
+    lv_label_set_text(btn4_label, "Demo Options");
+    uint8_t* btn4_option = new uint8_t(4);
+    lv_obj_add_event_cb(btn4, options_btn_event_cb, LV_EVENT_CLICKED, btn4_option);
 
     // Create a back button to return to the main page
     lv_obj_t *back_btn = lv_btn_create(page);
@@ -77,6 +77,10 @@ void MenuPage::options_btn_event_cb(lv_event_t *e) {
 
         case 3:
             MessageLogPage::getInstance()->show();
+            break;
+
+        case 4:
+            DemoSettingsPage::getInstance()->show();
         }
     }
 }
