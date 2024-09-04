@@ -123,12 +123,13 @@ void MainPage::show() {
 void MainPage::hide() {
 
     xSemaphoreTake(lock, portMAX_DELAY);
-
+    ESP_LOGI("MainPage::hide", "suspending and stopping");
     vTaskSuspend(task_handle);
     xTimerStop(timer_handle, portMAX_DELAY);
 
     xSemaphoreGive(lock);
-    
+    ESP_LOGI("MainPage::hide", "hiding");
+
     Page::hide();
 }
 

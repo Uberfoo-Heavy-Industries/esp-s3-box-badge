@@ -12,11 +12,15 @@ Page::Page(lv_obj_t *parent) {
 }
 
 void Page::show() {
+    bsp_display_lock(0);
     lv_obj_clear_flag(page, LV_OBJ_FLAG_HIDDEN);
+    bsp_display_unlock();
 }
 
 void Page::hide() {
+    bsp_display_lock(0);
     lv_obj_add_flag(page, LV_OBJ_FLAG_HIDDEN);
+    bsp_display_unlock();
 }
 
 bool Page::is_active() {

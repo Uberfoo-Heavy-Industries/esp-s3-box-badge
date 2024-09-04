@@ -26,9 +26,11 @@
 #include "MessageService.h"
 
 void button_cb(void *button_handle, void *usr_data) {
-    ESP_LOGI("button", "Button event.");
+    ESP_LOGI("button_cb", "Button event.");
     Page::hideAll();
+    ESP_LOGI("button_cb", "hid all");
     MenuPage::getInstance()->show();
+    ESP_LOGI("button_cb", "done");
 }
 
 extern "C" int app_main()
