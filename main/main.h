@@ -1,5 +1,8 @@
 #pragma once
 
+#define TOUCH_CHANNEL           TOUCH_PAD_NUM0
+#define TOUCH_CHANNEL_SENSOR    0.1F
+
 /** Major version number (X.x.x) */
 #define LV_DEMO_VERSION_MAJOR 0
 /** Minor version number (x.X.x) */

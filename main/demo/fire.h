@@ -1,8 +1,9 @@
+
 /*
 
 MIT No Attribution
 
-Copyright (c) 2020-2023 Mika Tuupola
+Copyright (c) 2023 James Bryant
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,19 +26,34 @@ SPDX-License-Identifier: MIT-0
 
 */
 
-#include "lvgl.h"
+#ifndef _FIRE_H_
+#define _FIRE_H_
+
+#include <stdint.h>
+#include "bsp/esp-bsp.h"
 #include "demo.h"
 
-class Metaballs : public Demo {
-    private:
 
-    const lv_color_t background = lv_color_make(0,0,0);
-    const lv_color_t black = lv_color_make(0,0,0);
-    const lv_color_t white = lv_color_make(255,255,255);
-    const lv_color_t green = lv_color_make(0,255,0);
+class Fire : public Demo {
+    private:
+    
+    lv_obj_t *canvas;
+    uint8_t *fire;
+    lv_color_t palette[256];
 
     public: 
-    
-    Metaballs(lv_obj_t * canvas, uint16_t width, uint16_t height);
-    void renderFrame() override; 
+
+    Fire(lv_obj_t *canvas, uint16_t width, uint16_t height);
+    void renderFrame();
+
+    ~Fire();
 };
+
+typedef struct fire_thrd_params {
+    int start;
+    int width;
+    int height;
+    uint8_t *fire;
+} fire_thrd_params;
+
+#endif // _FIRE_H_

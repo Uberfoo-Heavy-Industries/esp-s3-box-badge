@@ -11,11 +11,11 @@
     "idf.openOcdConfigs": [
         "board/esp32-wrover-kit-3.3v.cfg"
     ],
-    "idf.portWin": "COM4",
+    "idf.portWin": "COM8",
     "idf.pythonBinPathWin": "C:\\Users\\james\\.espressif\\python_env\\idf5.2_py3.11_env\\Scripts\\python.exe",
     "idf.toolsPathWin": "C:\\Users\\james\\.espressif",
     "files.associations": {
-        "metaballs.h": "c",
+        "metaballs.h": "cpp",
         "lvgl.h": "c",
         "esp-bsp.h": "c",
         "algorithm": "cpp",

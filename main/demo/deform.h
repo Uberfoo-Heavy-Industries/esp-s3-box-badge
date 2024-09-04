@@ -1,9 +1,8 @@
-
 /*
 
 MIT No Attribution
 
-Copyright (c) 2023 James Bryant
+Copyright (c) 2021-2023 Mika Tuupola
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,32 +25,22 @@ SPDX-License-Identifier: MIT-0
 
 */
 
-#ifndef _FIRE_H_
-#define _FIRE_H_
+#ifndef _DEFORM_H_
+#define _DEFORM_H_
 
-#include <stdint.h>
-#include "bsp/esp-bsp.h"
+#include "lvgl.h"
 #include "demo.h"
 
+class Deform : public Demo {
+private:
+    int8_t *lut;
+    uint32_t frame;
 
-class Fire : public Demo {
-    private:
-    
-    lv_obj_t *canvas;
-    uint8_t *fire;
-    lv_color_t palette[256];
+public:
+    Deform(lv_obj_t * canvas, uint16_t width, uint16_t height);
+    ~Deform();
 
-    public: 
-
-    Fire(lv_obj_t *canvas, uint16_t width, uint16_t height);
-    void renderFrame();
+    void renderFrame() override;
 };
 
-typedef struct fire_thrd_params {
-    int start;
-    int width;
-    int height;
-    uint8_t *fire;
-} fire_thrd_params;
-
-#endif // _FIRE_H_
+#endif

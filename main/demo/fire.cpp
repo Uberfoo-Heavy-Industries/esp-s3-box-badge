@@ -37,6 +37,7 @@ Fire Effect based on https://lodev.org/cgtutor/fire.html
 
 #include "bsp/esp-bsp.h"
 #include "esp_log.h"
+#include "esp_random.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_pthread.h"
@@ -46,9 +47,11 @@ Fire Effect based on https://lodev.org/cgtutor/fire.html
 
 Fire::Fire(lv_obj_t *canvas, uint16_t width, uint16_t height) : Demo(canvas, width, height)
 {
+    srand(esp_random());
+    
     this->canvas = canvas;
     ESP_LOGD("fire", "dimensions: (%d, %d)", width, height);
-    fire = (uint8_t *)heap_caps_malloc(width * height * 2, MALLOC_CAP_DEFAULT);
+    fire = (uint8_t *)heap_caps_malloc(width * height * 2, MALLOC_CAP_SPIRAM);
 
     if (fire == NULL) {
         ESP_LOGE("Fire", "Failed to allocate memory for fire buffer");
@@ -64,7 +67,7 @@ Fire::Fire(lv_obj_t *canvas, uint16_t width, uint16_t height) : Demo(canvas, wid
         //Hue goes from 0 to 85: red to yellow
         //Saturation is always the maximum: 255
         //Lightness is 0..255 for x=0..128, and 255 for x=128..255
-        lv_color_t color = hsl_to_rgb(x / 3, 255, std::min(255, x * 2));
+        lv_color_t color = hsl_to_rgb(x / 3, 255, x < 20 ? 0 : std::max(std::min(255, (x * 2) - 20), 0));
         palette[x] = color;
     }
 }
@@ -73,7 +76,7 @@ void Fire::renderFrame() {
     
     //randomize the bottom row of the fire buffer
     for(int x = 0; x < width; x++) fire[((height - 1) * width) + x] = abs(32768 + rand()) % 256;
-    ESP_LOGD("fire", "randomize row done.");
+    ESP_LOGD("Fire::renderFrame", "randomize row done.");
     
     //do the fire calculations for every pixel, from top to bottom
     for(int y = 0; y < height - 1; y++) {
@@ -87,6 +90,8 @@ void Fire::renderFrame() {
                 * 32) / 129;
         }
     }
+    
+    bsp_display_lock(0);
 
     //set the drawing buffer to the fire buffer, using the palette colors
     for(int y = 0; y < height; y++) {
@@ -95,6 +100,13 @@ void Fire::renderFrame() {
             lv_canvas_set_px(canvas, x, y, palette[*(fire + (y * width) + x)]);
         }
     }
-    ESP_LOGD("fire", "render frame done.\n");
+
+    bsp_display_unlock();
+
+    ESP_LOGD("Fire::renderFrame", "render frame done.\n");
 }
 
+Fire::~Fire() {
+    ESP_LOGD("Fire::~Fire", "deconstructor");
+    heap_caps_free(fire);
+}

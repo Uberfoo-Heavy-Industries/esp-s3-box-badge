@@ -9,7 +9,7 @@ lv_color_t hsl_to_rgb(uint16_t h, uint8_t is, uint8_t il) {
     float x = c * (1.0f - std::fabs(std::fmod(h / 60.0f, 2) - 1.0f));
     float m = l - c / 2.0f;
 
-    if (h >= 0 && h < 60) {
+    if (h < 60) {
         r = c;
         g = x;
         b = 0;
