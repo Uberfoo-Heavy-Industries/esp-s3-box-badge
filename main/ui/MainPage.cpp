@@ -25,7 +25,7 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
     canvas = lv_canvas_create(parent);
     lv_canvas_set_buffer(canvas, buf, BSP_LCD_H_RES, BSP_LCD_V_RES / 2, LV_IMG_CF_TRUE_COLOR);
     lv_obj_align_to(canvas, parent, LV_ALIGN_BOTTOM_MID, 0, 0);
-    lv_canvas_fill_bg(canvas, lv_color_make(0, 255, 0), LV_OPA_COVER);
+    lv_canvas_fill_bg(canvas, lv_color_make(0, 0, 0), LV_OPA_COVER);
 
     params = {
         .canvas = canvas,
@@ -75,7 +75,6 @@ MainPage::MainPage(lv_obj_t *parent) : Page(parent) {
 
     xTaskCreate(demo_task, "demo", 1024 * 4, this, tskIDLE_PRIORITY, &task_handle);
     vTaskSuspend(task_handle);
-    vTaskPrioritySet(task_handle, tskIDLE_PRIORITY + 1);
     
     timer_handle = xTimerCreate("demo_timer", DEMO_TIMEOUT, pdTRUE, nullptr, demo_timer_cb);
 
@@ -102,6 +101,7 @@ void MainPage::show() {
         }
         xTimerStop(timer_handle, portMAX_DELAY);
         vTaskSuspend(task_handle);
+        lv_canvas_fill_bg(canvas, lv_color_make(0, 0, 0), LV_OPA_COVER);
     } else {
         getNextIndex();
         loadDemo();
@@ -169,7 +169,7 @@ void MainPage::load_task(void *obj) {
         ESP_LOGI("MainPage::load_task", "loading demo");
         page->loadDemo();
     }
-    
+
     xSemaphoreGive(page->lock);
     ESP_LOGI("MainPage::load_task", "gave lock");
 
@@ -238,7 +238,7 @@ void MainPage::loadDemo() {
             break;
 
         default:
-            currentDemo = nullptr;  
+            currentDemo = nullptr;
     }
 
     ESP_LOGI("MainPage::loadDemo", "demo loaded");
