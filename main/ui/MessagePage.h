@@ -1,9 +1,7 @@
 #ifndef _MESSAGE_PAGE_H_
 #define _MESSAGE_PAGE_H_
 
-#include "Page.h"
 #include "TextEntryPage.h"
-#include "message.h"
 
 class MessagePage : public TextEntryPage {
 
