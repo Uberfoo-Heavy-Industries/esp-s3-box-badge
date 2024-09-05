@@ -2,24 +2,20 @@
 #define _MESSAGE_PAGE_H_
 
 #include "Page.h"
+#include "TextEntryPage.h"
 #include "message.h"
 
-class MessagePage : public Page {
+class MessagePage : public TextEntryPage {
+
 public:
-    static MessagePage* getInstance(lv_obj_t *parent = nullptr);
-    void show() override;
+    static MessagePage *getInstance(lv_obj_t *parent = nullptr);
 
 private:
     MessagePage(lv_obj_t *parent);
-    static void back_btn_event_cb(lv_event_t *e);
-    static void send_btn_event_cb(lv_event_t *e);
-
-    lv_obj_t *text_area;
-    lv_obj_t *keyboard;
-    lv_obj_t *send_btn;
-    lv_obj_t *back_btn;
+    void performAction();
 
     static MessagePage *instance;
+
 };
 
 #endif // _MESSAGE_PAGE_H_
