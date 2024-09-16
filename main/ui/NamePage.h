@@ -6,6 +6,7 @@
 class NamePage : public TextEntryPage {
 public:
     static NamePage* getInstance(lv_obj_t *parent = nullptr);
+    void show() override;
 
 private:
     NamePage(lv_obj_t *parent);

@@ -9,44 +9,44 @@
 MenuPage* MenuPage::instance = nullptr;
 
 MenuPage::MenuPage(lv_obj_t *parent) : Page(parent) {
-    // Initialize menu page content
-    lv_obj_t *label = lv_label_create(page);
-    lv_label_set_text(label, "Menu Page");
+    
+    // Create a container to hold the grid
+    lv_obj_t *cont = lv_obj_create(page);
+    lv_obj_set_size(cont, lv_pct(100), lv_pct(100)); // Container takes full parent size
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
+    lv_obj_set_style_border_width(cont, 0, LV_PART_MAIN);
+    lv_obj_set_style_pad_all(cont, 0, LV_PART_MAIN);
 
-    // Create menu buttons
-    lv_obj_t *btn1 = lv_btn_create(page);
-    lv_obj_align(btn1, LV_ALIGN_DEFAULT, 0, 0);
-    lv_obj_t *btn1_label = lv_label_create(btn1);
-    lv_label_set_text(btn1_label, "Name");
-    uint8_t* btn1_option = new uint8_t(1);
-    lv_obj_add_event_cb(btn1, options_btn_event_cb, LV_EVENT_CLICKED, btn1_option);
+    // Define the grid layout (2 rows, 2 columns)
+    static lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};  // 2 columns
+    static lv_coord_t row_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(2), LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};  // 2 rows
+    lv_obj_set_grid_dsc_array(cont, col_dsc, row_dsc);
 
-    lv_obj_t *btn2 = lv_btn_create(page);
-    lv_obj_align(btn2, LV_ALIGN_DEFAULT, 0, 40);
-    lv_obj_t *btn2_label = lv_label_create(btn2);
-    lv_label_set_text(btn2_label, "Send Message");
-    uint8_t* btn2_option = new uint8_t(2);
-    lv_obj_add_event_cb(btn2, options_btn_event_cb, LV_EVENT_CLICKED, btn2_option);
+    // Create 4 buttons and place them in the grid
+    for (int i = 0; i < 4; i++) {
+        lv_obj_t *btn = lv_btn_create(cont); // Create button
+        lv_obj_set_grid_cell(btn, LV_GRID_ALIGN_STRETCH, i % 2, 1, LV_GRID_ALIGN_STRETCH, i / 2, 1); // Grid position
 
-    lv_obj_t *btn3 = lv_btn_create(page);
-    lv_obj_align(btn3, LV_ALIGN_DEFAULT, 0, 80);
-    lv_obj_t *btn3_label = lv_label_create(btn3);
-    lv_label_set_text(btn3_label, "Messages");
-    uint8_t* btn3_option = new uint8_t(3);
-    lv_obj_add_event_cb(btn3, options_btn_event_cb, LV_EVENT_CLICKED, btn3_option);
+        // Create a label on the button
+        lv_obj_t *label = lv_label_create(btn);
+        lv_label_set_text_fmt(label, labels[i], i + 1); // Button 1 to 4
 
-    lv_obj_t *btn4 = lv_btn_create(page);
-    lv_obj_align(btn4, LV_ALIGN_DEFAULT, 0, 120);
-    lv_obj_t *btn4_label = lv_label_create(btn4);
-    lv_label_set_text(btn4_label, "Demo Options");
-    uint8_t* btn4_option = new uint8_t(4);
-    lv_obj_add_event_cb(btn4, options_btn_event_cb, LV_EVENT_CLICKED, btn4_option);
+        // Center the label inside the button
+        lv_obj_center(label);
+ 
+        uint8_t* btn_option = new uint8_t(i);
+        lv_obj_add_event_cb(btn, options_btn_event_cb, LV_EVENT_CLICKED, btn_option);
+    }
+
+    // Set the container to use grid layout
+    lv_obj_set_layout(cont, LV_LAYOUT_GRID);
 
     // Create a back button to return to the main page
-    lv_obj_t *back_btn = lv_btn_create(page);
-    lv_obj_align(back_btn, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_t *back_btn = lv_btn_create(cont);
     lv_obj_t *back_btn_label = lv_label_create(back_btn);
     lv_label_set_text(back_btn_label, "Back");
+    lv_obj_center(back_btn_label);
+    lv_obj_set_grid_cell(back_btn, LV_GRID_ALIGN_STRETCH, 0, 2, LV_GRID_ALIGN_STRETCH, 2, 1); // Grid position
     lv_obj_add_event_cb(back_btn, back_btn_event_cb, LV_EVENT_CLICKED, this);
 }
 
@@ -67,19 +67,19 @@ void MenuPage::options_btn_event_cb(lv_event_t *e) {
         uint8_t option = *static_cast<uint8_t*>(lv_event_get_user_data(e));
         MenuPage::getInstance()->hide();
         switch (option) {
-        case 1:
+        case 0:
             NamePage::getInstance()->show();
             break;
 
-        case 2:
+        case 1:
             MessagePage::getInstance()->show();
             break;
 
-        case 3:
+        case 2:
             MessageLogPage::getInstance()->show();
             break;
 
-        case 4:
+        case 3:
             DemoSettingsPage::getInstance()->show();
         }
     }

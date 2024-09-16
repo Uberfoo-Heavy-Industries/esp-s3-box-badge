@@ -5,8 +5,6 @@
 #include "message.h"
 
 class TextEntryPage : public Page {
-public:
-    void show() override;
 
 protected:
     static TextEntryPage *getInstance(lv_obj_t *parent);

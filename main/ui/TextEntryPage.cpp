@@ -48,16 +48,6 @@ TextEntryPage::TextEntryPage(lv_obj_t *parent, const char *actionText) : Page(pa
     bsp_display_unlock();
 }
 
-void TextEntryPage::show() {
-    bsp_display_lock(0);
-
-    const char *name = PersistenceService::getInstance()->getName();
-    lv_textarea_set_text(text_area, name);
-    Page::show();
-
-    bsp_display_unlock();
-}
-
 void TextEntryPage::send_btn_event_cb(lv_event_t *e) {
     lv_event_code_t code = lv_event_get_code(e);
     TextEntryPage *page = (TextEntryPage*)lv_event_get_user_data(e);
