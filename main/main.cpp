@@ -94,9 +94,6 @@ extern "C" int app_main()
     // Load the main page initially
     MainPage::getInstance()->show();
 
-    // ESPNowService::getInstance();
-    // MessageService::getInstance();
-
     ESP_LOGI("main", "\tDescription\tInternal\tSPIRAM");
     ESP_LOGI("main", "Current Free Memory\t%d\t\t%d",
                 heap_caps_get_free_size(MALLOC_CAP_INTERNAL),

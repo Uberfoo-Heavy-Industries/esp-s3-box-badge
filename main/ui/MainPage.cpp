@@ -157,9 +157,7 @@ void MainPage::demo_task(void *obj) {
 
 void MainPage::load_task(void *obj) {
     MainPage *page = MainPage::getInstance();
-    ESP_LOGI("MainPage::load_task", "getting lock");
     xSemaphoreTake(page->lock, portMAX_DELAY);
-    ESP_LOGI("MainPage::load_task", "got lock");
     
     auto current = page->index;
     page->getNextIndex();
@@ -171,7 +169,6 @@ void MainPage::load_task(void *obj) {
     }
 
     xSemaphoreGive(page->lock);
-    ESP_LOGI("MainPage::load_task", "gave lock");
 
     vTaskDelete(NULL);
 }
