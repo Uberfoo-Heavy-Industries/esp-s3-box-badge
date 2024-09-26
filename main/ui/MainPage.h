@@ -8,7 +8,7 @@
 #include "demo.h"
 
 #define DEFAULT_DEMO_STATE  (DEMO_FIRE | DEMO_METABALLS | DEMO_DEFORM | DEMO_ROTOZOOM | DEMO_PLASMA)
-#define DEMO_TIMEOUT        pdMS_TO_TICKS(10000)
+#define DEMO_TIMEOUT        pdMS_TO_TICKS(60000)
 
 typedef struct demo_task_params {
     lv_obj_t *canvas;

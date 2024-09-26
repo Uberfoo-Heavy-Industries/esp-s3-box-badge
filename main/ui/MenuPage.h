@@ -14,6 +14,12 @@ private:
     static void back_btn_event_cb(lv_event_t *e);
 
     static MenuPage *instance;
+    const char* labels[4] = {
+        "Name",
+        "Send Message",
+        "Messages",
+        "Demo Config"
+    };
 };
 
 #endif // MENUPAGE_H

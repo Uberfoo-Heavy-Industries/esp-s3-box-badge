@@ -15,13 +15,13 @@ DemoSettingsPage::DemoSettingsPage(lv_obj_t *parent) : Page(parent) {
 
     // Create an enable switch
     enable_switch = lv_switch_create(page);
-    lv_obj_align(enable_switch, LV_ALIGN_CENTER, 0, -60);
+    lv_obj_align(enable_switch, LV_ALIGN_TOP_MID, 0, 20);
     lv_obj_add_event_cb(enable_switch, switch_event_cb, LV_EVENT_VALUE_CHANGED, this);
 
     // Create a container for checkboxes
     checkbox_container = lv_obj_create(page);
-    lv_obj_set_size(checkbox_container, 200, 100);
-    lv_obj_align(checkbox_container, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_size(checkbox_container, 294, 115);
+    lv_obj_align(checkbox_container, LV_ALIGN_CENTER, 0, 7);
     lv_obj_add_flag(checkbox_container, LV_OBJ_FLAG_HIDDEN);
 
     // Set flex layout for the checkbox container
@@ -46,7 +46,7 @@ DemoSettingsPage::DemoSettingsPage(lv_obj_t *parent) : Page(parent) {
 
     // Create a save button
     save_btn = lv_btn_create(page);
-    lv_obj_set_size(save_btn, 100, 30);
+    lv_obj_set_size(save_btn, 65, 35);
     lv_obj_align(save_btn, LV_ALIGN_BOTTOM_LEFT, 10, 0);
     lv_obj_t *save_btn_label = lv_label_create(save_btn);
     lv_label_set_text(save_btn_label, "Save");
@@ -54,7 +54,7 @@ DemoSettingsPage::DemoSettingsPage(lv_obj_t *parent) : Page(parent) {
 
     // Create a back button to return to the menu page
     back_btn = lv_btn_create(page);
-    lv_obj_set_size(back_btn, 50, 30);
+    lv_obj_set_size(back_btn, 65, 35);
     lv_obj_align(back_btn, LV_ALIGN_BOTTOM_RIGHT, -10, 0);
     lv_obj_t *back_btn_label = lv_label_create(back_btn);
     lv_label_set_text(back_btn_label, "Back");
